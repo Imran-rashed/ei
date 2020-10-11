@@ -1,0 +1,190 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\PurchaseReturn;
+use App\PurchaseReturnItems;
+use Illuminate\Support\Facades\DB;
+use DataTables;
+use Heplpers;
+class PurchaseReturnController extends Controller
+{
+    private $root = 'return/purchase/';
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $stores = DB::table('stores')->get();
+        $data = [
+            'stores'=>$stores 
+        ];
+        return view($this->root . 'index', $data);
+    }
+
+
+    public function purchaseReturnData(Request $request){
+        $store_id = $request->store_id;
+       $purchase = PurchaseReturn::with(['vendor', 'purchase_items', 'purchase_items.item', 'purchase_items.item.prices']);
+
+       if ($store_id != 0) {
+           $purchase = $purchase->where('location_id', $store_id);
+       }
+
+       $purchase = $purchase->get();
+
+        return Datatables::of($purchase)
+                ->addIndexColumn()
+                ->editColumn('vendor_invoice', function(PurchaseReturn $req){
+                    return 'NA';
+                })
+                ->editColumn('grand_total', function(PurchaseReturn $req){
+                    $items = $req->purchase_items;
+                    $total = 0;
+                    if(!empty($items)){
+                        foreach ($items as $key => $item) {
+                            $single_item_total =  ($item->quantity * $item->item->prices->final_cost);
+                            $single_item_total = $single_item_total - ($single_item_total * $item->discount)/100;
+                            $total += $single_item_total;
+                        }
+                    }
+
+                    $total = $total - ($total * $req->discount)/100;
+                    $total = $total + ($total * $req->tax)/100;
+
+                    return $total;
+                })
+                ->editColumn('vendor', function(PurchaseReturn $req){
+                    return $req->vendor->name;
+                })
+
+                ->editColumn('status', function(PurchaseReturn $req){
+                    if($req->status == 0){
+                        return 'Draft';
+                    }
+                    if($req->status == 1){
+                        return 'Final';
+                    }
+                })
+                ->editColumn('action', function(PurchaseReturn $req){
+                    return '<div class="dropdown">
+                                                    <button class="btn btn-secondary dropdown-toggle btn-action" type="button" id="itemActionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Action
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="itemActionDropdown">
+                                                        <a class="dropdown-item" href="/purchase_return/'.$req->id.'">View</a>
+                                                        <a class="dropdown-item" href="/purchase_return/'.$req->id.'/edit">Edit</a>
+                                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#statusUpdateModal">Update Status</a>
+                                                        <a class="dropdown-item" href="make-transfer.php">Make Transfer</a>
+                                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#requisitionDelModal">Delete</a>
+                                                    </div>
+                                                </div>';
+                })
+                ->make();
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view($this->root . 'create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //dd($request);
+        $request->validate([
+            'date' => 'required',
+            'reference' => 'required',
+            'location_id' => 'required',
+        ]);
+
+        $req = new PurchaseReturn();
+        $file_name = '';
+        if($request->file('document') != null){
+        $fileName = time().'.'.$request->document->extension();  
+   
+        $request->document->move(public_path('uploads/purchase_return_document'), $fileName);
+        $file_name = 'uploads/purchase_return_document/'.$fileName;
+        }
+        
+
+        $req->date = $request->date;
+        $req->reference = $request->reference;
+        $req->location_id = $request->location_id;
+        $req->status = $request->status;
+        $req->document_file = $file_name;
+        $req->vendor_id = $request->vendor_id;
+        $req->note = $request->note;
+        $req->user_id = \Auth::id();
+        if($req->save()){
+            $items = $request->purchase_return_items;
+            foreach ($items as $item) {
+                $req_item = new PurchaseReturnItems();
+                $req_item->purchase_return_id = $req->id;//May Cause Error
+                $req_item->location_id = $request->location_id;
+                $req_item->item_id = $item['id'];
+                $req_item->quantity = $item['quantity'];
+                $req_item->save();
+            }
+            return redirect()->back()->with('success', 'Added Successfully!');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}
