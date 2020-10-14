@@ -67,7 +67,48 @@
                                                     <div class="col-md-12">
                                                         <button type="submit" class="btn btn-primary mt-4">Send</button>
                                                     </div>
+                                                    <div class="col-12">
+                                                       
+
+                                                       <button type="submit" class="btn btn-success mt-4">Finish</button>
+                                                   </div>
                                                 </div>
+                                                <div class="col-12 mt-1">
+                                        <div style="padding: 1rem;background-color: #f1f1f1">
+
+                                            <div class="row">
+
+                                                <div class="col-12">
+                                                    <table class="table table-striped table-bordered" style="width:100%">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Item name (Item code)</th>
+                                                                <th>Last GRN Cost</th>
+                                                                <th>Final Cost</th>
+                                                                <th>Quantity</th>
+                                                                <th>Discount</th>
+                                                                <th>Subtotal(AED)</th>
+                                                                {{-- <th><a href="#"><i class="far fa-trash-alt"></i></a></th> --}}
+                                                            </tr>
+                                                        </thead>
+                                                        <!-- <tbody v-if="selected_items.length > 0">
+                                                            <tr v-for="(selected_item, index) in selected_items">
+                                                                <td>
+                                                                <input type="hidden" class="form-control" v-bind:name="getInputName(index, 'id')" :value="selected_item.id">
+                                                                @{{ selected_item.code + '-' + selected_item.name}}</td>
+                                                                <td>@{{ selected_item.prices.last_grn_cost }}</td>
+                                                                <td><input type="number" class="form-control" :value="selected_item.purchase.cost" v-bind:name="getInputName(index, 'cost')" readonly ></td>
+                                                                <td><input type="number" class="form-control" :value="selected_item.purchase.quantity" v-bind:name="getInputName(index, 'quantity')" readonly ></td>
+                                                                <td><input type="number" class="form-control" :value="selected_item.purchase.discount" v-bind:name="getInputName(index, 'discount')" readonly></td>
+                                                                <td>@{{ (selected_items[index].purchase.quantity * selected_item.prices.final_cost) - (((selected_items[index].purchase.quantity * selected_item.prices.final_cost)*selected_items[index].purchase.discount)/100) }}</td>
+                                                               {{--  <td><a href="#"><i class="far fa-window-close"></i></a></td> --}}
+                                                            </tr>
+                                                        </tbody> -->
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                             </div>
                                         </div>
                                     </div>
@@ -110,7 +151,7 @@ const app = new Vue({
             let ref = this;
 
             if(search != ''){
-            axios.post('/api/item/list',{'search':search}).then(function(response){
+            axios.post("{{url('/api/item/list')}}",{'search':search}).then(function(response){
                 ref.item_info = response.data.results;
             });
             }
@@ -120,7 +161,7 @@ const app = new Vue({
             let ref = this;
             let product_id = value.code;
             ref.selected_item_buy = {};
-            axios.post('/api/item/info', {'id':product_id}).then(function(response){
+            axios.post("{{url('/api/item/info')}}", {'id':product_id}).then(function(response){
                 // ref.selected_item_buy.id = response.data.id;
                 // ref.selected_item_buy.cost = response.data.prices.final_cost;
                 // ref.selected_item_buy.markup = response.data.prices.markup + ' %';
@@ -135,7 +176,7 @@ const app = new Vue({
             let ref = this;
 
             if(search != ''){
-            axios.post('/api/location/list',{'search':search}).then(function(response){
+            axios.post("{{url('/api/location/list')}}",{'search':search}).then(function(response){
                 ref.location_list = response.data.results;
             });
             }
@@ -143,7 +184,7 @@ const app = new Vue({
         fetch_location_info: function(value){
             let ref = this;
             let store_id = value;
-            axios.post('/api/location/info', {'id':store_id}).then(function(response){
+            axios.post("{{url('/api/location/info')}}", {'id':store_id}).then(function(response){
 
                 ref.selected_location.id = response.data[0].id;
                 ref.selected_location.name = response.data[0].name;
@@ -155,7 +196,7 @@ const app = new Vue({
             let ref = this;
 
             if(search != ''){
-            axios.post('/api/vendor/list',{'search':search}).then(function(response){
+            axios.post("{{url('/api/vendor/list')}}",{'search':search}).then(function(response){
                 ref.vendor_list = response.data.results;
             });
             }
@@ -164,7 +205,7 @@ const app = new Vue({
             let ref = this;
 
             let store_id = value;
-            axios.post('/api/vendor/info', {'id':store_id}).then(function(response){
+            axios.post("{{url('/api/vendor/info')}}", {'id':store_id}).then(function(response){
 
                 ref.selected_vendor.id = response.data[0].id;
                 ref.selected_vendor.name = response.data[0].name;
@@ -216,7 +257,7 @@ const app = new Vue({
         },
         autoGenerateRef: function(){
             let ref = this;
-            axios.post('/api/reference/generate', {'table':'trn_receives', 'refcode':'GTRN'}).then(function(response){
+            axios.post("{{url('/api/reference/generate')}}", {'table':'trn_receives', 'refcode':'GTRN'}).then(function(response){
                 ref.reference = response.data.reference;
             });
 

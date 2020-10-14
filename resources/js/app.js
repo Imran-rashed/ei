@@ -9,7 +9,7 @@ require('./bootstrap');
 window.Vue = require('vue');
 
 
-//import DateRangePicker from 'vue2-daterange-picker';
+import DateRangePicker from 'vue2-daterange-picker';
 //import 'vue2-daterange-picker/dist/vue2-daterange-picker.css';
 
 //console.log(DateRangePicker);
@@ -25,7 +25,7 @@ window.Vue = require('vue');
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
 //Vue.component('example-component', require('./components/ExampleComponent.vue').default);
-//Vue.component('date-range-picker', DateRangePicker);
+Vue.component('date-range-picker', DateRangePicker);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

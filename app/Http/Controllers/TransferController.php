@@ -123,9 +123,6 @@ class TransferController extends Controller
             'transfer_to' => 'required',
         ]);
 
-        var_dump($request->transfer_from);
-        var_dump($request->transfer_to);
-
         if($request->transfer_from == $request->transfer_to){
             return redirect()->back()->with('error', 'Transfer can not possible between same location!');
         }

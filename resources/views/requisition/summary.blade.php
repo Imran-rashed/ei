@@ -3,7 +3,7 @@
 @section('title', 'Dashboard - Vegetable Requisition Create')
 
 @section('main_content')
-        <main class="page-content" id="page-content">
+        <main class="page-content" id="app">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
@@ -19,8 +19,14 @@
 
 
                                             <input type="text" name="requisitionSummary-range" class="form-control" v-model="date_range" v-on:change="dateRangeFilter"/>
-                                           {{-- <date-range-picker></date-range-picker> --}}
-                                          {{-- <date-range-picker></date-range-picker> --}}
+                                            <div class="content">
+                <div class="title m-b-md">
+                        <date-range-picker
+    
+            v-model="dateRange"                        
+    >
+        
+    </date-range-picker>
 
                                         </div>
                                     </div>
@@ -73,12 +79,9 @@
 @push('js_script')
 
 <script>
-Vue.use(DateRangePicker);
-
-
 const app = new Vue({
     // components: { DateRangePicker },
-    el: '#page-content',
+    el: '#app',
     data: {
         summary:[],
         columns:[],
@@ -90,7 +93,12 @@ const app = new Vue({
         prev: 0,
         next: 0,
         date_range:'',
-        requisition_type:''
+        requisition_type:'',
+        //daterange
+        dateRange: {
+            startDate: '{{ date('y-m-d')}}',
+            endDate: '{{ date('y-m-d')}}',
+        },
     },
     methods:{
         get_data: function(){

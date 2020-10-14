@@ -39,19 +39,18 @@
                                                     <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label>From</label>
-                                                            <input type="hidden" name="transfer_from" v-model="selected_location.id">
+                                                            <input type="hidden" name="transfer_from" v-model="from_location.id">
                                                             <!-- <input type="text" class="form-control" readonly="true" value="6016-Aweer Fruits & Vegetable Shop"> -->
-                                                            <v-select @search="fetch_location_list" :options="location_list" @input="fetch_location_info" >
+                                                            <v-select @search="fetch_location_list" :options="location_list" @input="fetch_from_location_info" >
 
 </v-select>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <input type="hidden" name="transfer_to" v-model="selected_location.id">
+                                                        <input type="hidden" name="transfer_to" v-model="to_location.id">
                                                         <div class="form-group">
                                                             <label>To</label>
-                                                                      <v-select @search="fetch_location_list" :options="location_list" @input="fetch_location_info" >
-
+                                                                      <v-select @search="fetch_location_list" :options="location_list" @input="fetch_to_location_info" >
                                                                         </v-select>
                                                         </div>
                                                     </div>
@@ -162,7 +161,9 @@ const app = new Vue({
         item_info: [],
         selected_items: [],
         location_list : [],
-        selected_location: {},
+        // selected_location: {},
+        from_location: {},
+        to_location: {},
 
         vendor_list : [],
         selected_vendor: {},
@@ -213,13 +214,22 @@ const app = new Vue({
             });
             }
         },
-        fetch_location_info: function(value){
+        fetch_from_location_info: function(value){
             let ref = this;
             let store_id = value;
             axios.post("{{url('/api/location/info')}}", {'id':store_id}).then(function(response){
 
-                ref.selected_location.id = response.data[0].id;
-                ref.selected_location.name = response.data[0].name;
+                ref.from_location.id = response.data[0].id;
+                ref.from_location.name = response.data[0].name;
+            });
+        },
+        fetch_to_location_info: function(value){
+            let ref = this;
+            let store_id = value;
+            axios.post("{{url('/api/location/info')}}", {'id':store_id}).then(function(response){
+
+                ref.to_location.id = response.data[0].id;
+                ref.to_location.name = response.data[0].name;
             });
         },
 

@@ -22,6 +22,7 @@
  --}}
  <script type="text/javascript" src="{{ asset('js/vue-select.js') }}"></script>
 <link rel="stylesheet" type="text/css" href="{{ asset('css/vue-select.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}">
 </head>
 <body>
     <div class="page-wrapper chiller-theme toggled">
@@ -125,7 +126,7 @@
     <script type="text/javascript" src="{{ asset('assets/js/rainbow-custom.min.js') }}"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script type="text/javascript" src="{{ asset('assets/js/script.js') }}"></script>
-    <script src="https://unpkg.com/vue-rangedate-picker"></script>
+    
 @stack('js_script')
 </body>
 </html>
