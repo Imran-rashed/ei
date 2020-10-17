@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\TrnReceive;
+use App\Transfer;
+use App\TransferItems;
+use App\Item;
 use Auth;
 use DataTables;
 use Illuminate\Support\Facades\Validator;
@@ -36,9 +39,15 @@ class TNTReceiveController extends Controller
         $reference_no = $request->reference_no;
         $shop_code = $request->shop_code;
 
+        $transfer = Transfer::where('reference', $reference_no)->with('transfer_items')->first();
+        if(!$transfer){
+            return redirect()->back();
+        }
+
         $data = [
             'reference_no' => $reference_no,
-            'shop_code' => $shop_code
+            'shop_code' => $shop_code,
+            'transfer'=>$transfer
         ];
         return view($this->root . 'create', $data);
     }
@@ -66,10 +75,11 @@ class TNTReceiveController extends Controller
         $transfer = Transfer::where('reference', $ref)->first();
         $tnt->transfer_id = $transfer->id;
         $tnt->shop_code = $request->shop_code;
-        $tnt->item_code = $request->item_code;
-        $tnt->unit_cost = $request->unit_cost;
-        $tnt->quantity = $request->quantity;
-        $tnt->item_id = $request->item_id;
+        //$tnt->item_code = $request->item_code;
+        //$tnt->unit_cost = $request->unit_cost;
+        //$tnt->quantity = $request->quantity;
+        $receive->reference_no = $request->ref;
+        //$tnt->item_id = $request->item_id;
         $tnt->user_id = Auth::id();
 
         if($tnt->save()){
@@ -158,5 +168,41 @@ class TNTReceiveController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function checkItemsExistance(Request $request){
+        $transfer_id = $request->transfer_id;
+        $item_id = $request->item_id;
+
+        $check = TransferItems::where('transfer_id', $transfer_id)->where('item_id', $item_id)->get();
+
+        if(count($check) <= 0){
+            $status = 0;
+        }else{
+            $status = 1;
+        }
+
+        return $status;
+    }
+
+    public function itemInfoWithTransfer(Request $request){
+        $transfer_id = $request->transfer_id;
+        $item_id = $request->id;
+        // dd($request);
+        $info = Item::with(['prices','product_wise_vendor'])->where('barcode',$item_id)->first();
+        $info['stock'] = 0;
+        $info['last_7_day_sale'] = 0;
+        $info['last_30_day_sale'] = 0;
+
+        $check = TransferItems::where('transfer_id', $transfer_id)->where('item_id', $info->id)->first();
+        if(!$check){
+            $check['discount'] = 0;
+            $check['quantity'] = 0;
+
+        }
+
+        $info['transfer'] = $check;
+
+        return response()->json($info);
     }
 }

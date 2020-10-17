@@ -38,7 +38,7 @@ class PurchaseReturnController extends Controller
 
         return Datatables::of($purchase)
                 ->addIndexColumn()
-                ->editColumn('vendor_invoice', function(PurchaseReturn $req){
+                ->editColumn('location', function(PurchaseReturn $req){
                     return 'NA';
                 })
                 ->editColumn('grand_total', function(PurchaseReturn $req){

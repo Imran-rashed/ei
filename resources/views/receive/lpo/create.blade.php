@@ -256,7 +256,7 @@ const app = new Vue({
             let ref = this;
 
             if(search != ''){
-            axios.post('/api/item/list',{'search':search}).then(function(response){
+            axios.post("{{ url('/api/item/list') }}",{'search':search}).then(function(response){
                 ref.item_info = response.data.results;
             });
             }
@@ -266,7 +266,7 @@ const app = new Vue({
             let ref = this;
             let product_id = value.code;
             ref.selected_item = {};
-            axios.post('/api/item/info/with/purchase', {'id':product_id, 'purchase_id': ref.purchase_id}).then(function(response){
+            axios.post("{{ url('/api/item/info/with/purchase') }}", {'id':product_id, 'purchase_id': ref.purchase_id}).then(function(response){
                 let data = response.data;
                 ref.selected_item = response.data;
                 // ref.countTotals();
@@ -280,7 +280,7 @@ const app = new Vue({
 
             let ref = this;
             let id = ref.selected_item.id;
-            axios.post('/api/check/item/in/purchase',{'item_id':id, 'purchase_id': ref.purchase_id}).then(function(response){
+            axios.post("{{ url('/api/check/item/in/purchase') }}",{'item_id':id, 'purchase_id': ref.purchase_id}).then(function(response){
                 
                 if (response.data == 1) {
                     console.log("in");
@@ -304,7 +304,7 @@ const app = new Vue({
             let ref = this;
 
             if(search != ''){
-            axios.post('/api/location/list',{'search':search}).then(function(response){
+            axios.post("{{ url('/api/location/list') }}",{'search':search}).then(function(response){
                 ref.location_list = response.data.results;
             });
             }
@@ -312,7 +312,7 @@ const app = new Vue({
         fetch_location_info: function(value){
             let ref = this;
             let store_id = value;
-            axios.post('/api/location/info', {'id':store_id}).then(function(response){
+            axios.post("{{ url('/api/location/info') }}", {'id':store_id}).then(function(response){
 
                 ref.selected_location.id = response.data[0].id;
                 ref.selected_location.name = response.data[0].name;
@@ -324,7 +324,7 @@ const app = new Vue({
             let ref = this;
 
             if(search != ''){
-            axios.post('/api/vendor/list',{'search':search}).then(function(response){
+            axios.post("{{ url('/api/vendor/list') }}",{'search':search}).then(function(response){
                 ref.vendor_list = response.data.results;
             });
             }
@@ -333,7 +333,7 @@ const app = new Vue({
             let ref = this;
 
             let store_id = value;
-            axios.post('/api/vendor/info', {'id':store_id}).then(function(response){
+            axios.post("{{ url('/api/vendor/info') }}", {'id':store_id}).then(function(response){
 
                 ref.selected_vendor.id = response.data[0].id;
                 ref.selected_vendor.name = response.data[0].name;
@@ -388,7 +388,7 @@ const app = new Vue({
         },
         autoGenerateRef: function(){
             let ref = this;
-            axios.post('/api/reference/generate', {'table':'lpo_receives', 'refcode':'GRN'}).then(function(response){
+            axios.post("{{ url('/api/reference/generate') }}", {'table':'lpo_receives', 'refcode':'GRN'}).then(function(response){
                 ref.reference = response.data.reference;
             });
 

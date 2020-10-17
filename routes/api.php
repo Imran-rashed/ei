@@ -63,6 +63,8 @@ Route::post('transfer/items/by/id', 'TransferController@transferItemsById');
 Route::post('check/item/in/purchase', 'LPOReceiveController@checkItemsExistance');
 Route::post('item/info/with/purchase', 'LPOReceiveController@itemInfoWithPurchase');
 
+Route::post('check/item/in/transfer', 'TNTReceiveController@checkItemsExistance');
+Route::post('item/info/with/transfer', 'TNTReceiveController@itemInfoWithTransfer');
 
 Route::post('reference/generate', 'HelperController@generateReference');
 

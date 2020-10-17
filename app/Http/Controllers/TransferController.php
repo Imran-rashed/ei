@@ -230,7 +230,6 @@ class TransferController extends Controller
                 $req_item->item_id = $item['id'];
                 $req_item->quantity = $item['quantity'];
                 $req_item->save();
-               
             }
             return redirect()->back()->with('success', 'Updated Successfully!');
         }

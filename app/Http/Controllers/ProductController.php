@@ -28,7 +28,14 @@ class ProductController extends Controller
     }
 
     public function itemDetailIndex(){
-        return view($this->root . 'item_detail');
+        $stores = DB::table('stores')->get();
+        $data = [
+            'stores'=>$stores 
+        ];
+        //echo "<pre>";var_dump($data);echo "</pre>";die();
+        return view($this->root . 'item_detail',$data);
+
+
     }
 
     public function priceUpdateHistoyIndex(){

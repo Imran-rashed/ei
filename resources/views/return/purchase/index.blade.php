@@ -39,7 +39,7 @@
                                             <th>Date</th>
                                             <th>Reference</th>
                                             <th>Vendor</th>
-                                            <th>Vendor Invoice</th>
+                                            <th>Location</th>
                                             <th>Purchase Status</th>
                                             <th>Grand Total</th>
                                             <th>Action</th>
@@ -48,7 +48,7 @@
                                             <th>Date</th>
                                             <th>Reference</th>
                                             <th>Vendor</th>
-                                            <th>Vendor Invoice</th>
+                                            <th>Location</th>
                                             <th>Purchase Status</th>
                                             <th>Grand Total</th>
                                             <th>Action</th>
@@ -138,7 +138,7 @@
             {data: 'date', name: 'date'},
             {data: 'reference', name: 'reference'},
             {data: 'vendor', name: 'vendor'},
-            {data: 'vendor_invoice', name: 'vendor_invoice'},
+            {data: 'location', name: 'Location'},
             {data: 'status', name: 'status'},//
             {data: 'grand_total', name: 'grand_total'},
             {data: 'action', name: 'action', searchable: false, sortable:false},

@@ -49,23 +49,23 @@
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>Item Code</label>
-                                                            <input type="text" class="form-control" name="item_code">
+                                                            <input type="text" class="form-control" name="item_code" v-model="selected_item.code">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>Unit Cost</label>
-                                                            <input type="text" class="form-control" name="unit_cost">
+                                                            <input type="text" class="form-control" name="unit_cost" v-model="selected_item.unit_cost">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>Quantity</label>
-                                                            <input type="text" class="form-control" name="quantity">
+                                                            <input type="text" class="form-control" name="quantity" v-model="selected_item.transfer.quantity" readonly>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-12">
-                                                        <button type="submit" class="btn btn-primary mt-4">Send</button>
+                                                        <button type="button" class="btn btn-primary mt-4" v-on:click="send_item">Send</button>
                                                     </div>
                                                     <div class="col-12">
                                                        
@@ -91,19 +91,19 @@
                                                                 {{-- <th><a href="#"><i class="far fa-trash-alt"></i></a></th> --}}
                                                             </tr>
                                                         </thead>
-                                                        <!-- <tbody v-if="selected_items.length > 0">
+                                                        <tbody v-if="selected_items.length > 0">
                                                             <tr v-for="(selected_item, index) in selected_items">
                                                                 <td>
                                                                 <input type="hidden" class="form-control" v-bind:name="getInputName(index, 'id')" :value="selected_item.id">
                                                                 @{{ selected_item.code + '-' + selected_item.name}}</td>
                                                                 <td>@{{ selected_item.prices.last_grn_cost }}</td>
-                                                                <td><input type="number" class="form-control" :value="selected_item.purchase.cost" v-bind:name="getInputName(index, 'cost')" readonly ></td>
-                                                                <td><input type="number" class="form-control" :value="selected_item.purchase.quantity" v-bind:name="getInputName(index, 'quantity')" readonly ></td>
-                                                                <td><input type="number" class="form-control" :value="selected_item.purchase.discount" v-bind:name="getInputName(index, 'discount')" readonly></td>
-                                                                <td>@{{ (selected_items[index].purchase.quantity * selected_item.prices.final_cost) - (((selected_items[index].purchase.quantity * selected_item.prices.final_cost)*selected_items[index].purchase.discount)/100) }}</td>
+                                                                <td><input type="number" class="form-control" :value="selected_item.transfer.cost" v-bind:name="getInputName(index, 'cost')" readonly ></td>
+                                                                <td><input type="number" class="form-control" :value="selected_item.transfer.quantity" v-bind:name="getInputName(index, 'quantity')" readonly ></td>
+                                                                <td><input type="number" class="form-control" :value="selected_item.transfer.discount" v-bind:name="getInputName(index, 'discount')" readonly></td>
+                                                                <td>@{{ (selected_items[index].transfer.quantity * selected_item.prices.final_cost) - (((selected_items[index].transfer.quantity * selected_item.prices.final_cost)*selected_items[index].transfer.discount)/100) }}</td>
                                                                {{--  <td><a href="#"><i class="far fa-window-close"></i></a></td> --}}
                                                             </tr>
-                                                        </tbody> -->
+                                                        </tbody>
                                                     </table>
                                                 </div>
                                             </div>
@@ -131,7 +131,12 @@ const app = new Vue({
     data: {
         item_info: [],
         selected_item: {
+            transfer:{
+                discount:0,
+                quantity:0
+            }
         },
+        selected_items: [],
         location_list : [],
         selected_location: {},
 
@@ -143,7 +148,8 @@ const app = new Vue({
         tax: 0,
         total_qty: 0,
         grand_total: 0,
-        reference: '{{ old('reference') }}'
+        reference: '{{ old('reference') }}',
+        transfer_id: {{ $transfer->id }}
 
     },
     methods:{
@@ -160,16 +166,39 @@ const app = new Vue({
         fetch_item_info: function(value){
             let ref = this;
             let product_id = value.code;
-            ref.selected_item_buy = {};
-            axios.post("{{url('/api/item/info')}}", {'id':product_id}).then(function(response){
-                // ref.selected_item_buy.id = response.data.id;
-                // ref.selected_item_buy.cost = response.data.prices.final_cost;
-                // ref.selected_item_buy.markup = response.data.prices.markup + ' %';
-                // ref.selected_item_buy.price = response.data.prices.final_price;
+            ref.selected_item = {};
+            axios.post("{{ url('/api/item/info/with/transfer') }}", {'id':product_id, 'transfer_id': ref.transfer_id}).then(function(response){
                 let data = response.data;
                 ref.selected_item = response.data;
                 // ref.countTotals();
+                ref.selected_item.unit_cost = data.prices.final_cost;
+                console.log(ref.selected_item);
             });
+
+        },
+
+        send_item: function(){
+
+            let ref = this;
+            let id = ref.selected_item.id;
+            axios.post("{{ url('/api/check/item/in/transfer') }}",{'item_id':id, 'transfer_id': ref.transfer_id}).then(function(response){
+                
+                if (response.data == 1) {
+                    console.log("in");
+                    ref.selected_items.push(ref.selected_item);
+                    ref.countTotals();
+                }else{
+                    // ref.selected_items.push(ref.selected_item);
+                    // ref.countTotals();
+                    alert("This item is not listed in this transfer");
+                }
+                ref.selected_item =  {
+                    transfer:{
+                        discount:0,
+                        quantity:0
+                    }
+                };
+            }); 
 
         },
         fetch_location_list: function(search, loading){

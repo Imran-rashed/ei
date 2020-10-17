@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.4
+-- version 5.0.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Oct 11, 2020 at 12:01 AM
--- Server version: 10.3.21-MariaDB-cll-lve
--- PHP Version: 7.3.6
+-- Host: localhost
+-- Generation Time: Oct 17, 2020 at 07:06 PM
+-- Server version: 10.4.13-MariaDB
+-- PHP Version: 7.4.7
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -104,6 +103,21 @@ INSERT INTO `combos` (`id`, `product_id`, `barcode`, `unit_id`, `combo_price`, `
 (5, '3', '100001', 3, '013.65', NULL, 1, NULL, '2020-09-21 12:36:50', '2020-09-21 12:36:50'),
 (6, '3', '100001', 2, '013.65', NULL, 1, NULL, '2020-09-21 12:40:43', '2020-09-21 12:40:43'),
 (7, '17', '251454566', 3, '163.8', NULL, 1, NULL, '2020-09-23 20:35:13', '2020-09-23 20:35:13');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `combo_items`
+--
+
+CREATE TABLE `combo_items` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `combo_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -273,7 +287,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (31, '2020_06_24_070530_create_f_o_c_items_table', 1),
 (32, '2020_06_24_180306_create_transfer_items_table', 1),
 (33, '2020_06_26_210102_create_transfer_return_items_table', 1),
-(34, '2020_06_26_210346_create_purchase_return_items_table', 1);
+(34, '2020_06_26_210346_create_purchase_return_items_table', 1),
+(35, '2020_09_10_214738_create_combo_items_table', 2),
+(36, '2020_10_16_192646_create_trn_receive_items', 3);
 
 -- --------------------------------------------------------
 
@@ -389,7 +405,12 @@ INSERT INTO `price_update_histories` (`id`, `date`, `reference`, `store_id`, `it
 (1, '2020/10/05 06:10:24', 'PUP0010001', 1, 17, 20.00, 27.30, 30.00, 26.25, 25.00, NULL, 0, '2020-10-04 22:38:38', '2020-10-04 22:38:38'),
 (2, '2020/10/05 11:10:42', 'PUP0010002', 4, 25, 20.00, 27.30, 30.00, 29.40, 40.00, NULL, 0, '2020-10-05 15:27:59', '2020-10-05 15:27:59'),
 (3, '2020/10/05 11:10:59', 'PUP0010003', 4, 25, 20.00, 29.40, 40.00, 27.30, 30.00, NULL, 0, '2020-10-05 15:28:29', '2020-10-05 15:28:29'),
-(8, '2020/10/07 07:10:11', 'PUP0010004', 1, 17, 20.00, 26.25, 25.00, 25.20, 20.00, NULL, 0, '2020-10-06 23:40:31', '2020-10-06 23:40:31');
+(8, '2020/10/07 07:10:11', 'PUP0010004', 1, 17, 20.00, 26.25, 25.00, 25.20, 20.00, NULL, 0, '2020-10-06 23:40:31', '2020-10-06 23:40:31'),
+(9, '2020/10/11 03:10:53', 'PUP0010005', 1, 17, 20.00, 25.20, 20.00, 26.25, 25.00, NULL, 0, '2020-10-11 09:57:15', '2020-10-11 09:57:15'),
+(10, '2020/10/11 03:10:55', 'PUP0010006', 1, 17, 20.00, 26.25, 25.00, 28.35, 35.00, NULL, 0, '2020-10-11 10:05:19', '2020-10-11 10:05:19'),
+(11, '2020/10/11 04:10:19', 'PUP0010007', 1, 17, 20.00, 28.35, 35.00, 32.55, 55.00, NULL, 0, '2020-10-11 10:24:55', '2020-10-11 10:24:55'),
+(12, '2020/10/11 04:10:12', 'PUP0010008', 1, 17, 20.00, 32.55, 55.00, 24.15, 15.00, NULL, 0, '2020-10-11 10:31:29', '2020-10-11 10:31:29'),
+(13, '2020/10/11 04:10:16', 'PUP0010009', 1, 17, 20.00, 24.15, 15.00, 26.25, 25.00, NULL, 0, '2020-10-11 10:33:45', '2020-10-11 10:33:45');
 
 -- --------------------------------------------------------
 
@@ -430,12 +451,12 @@ INSERT INTO `products` (`id`, `name`, `code`, `barcode`, `evaluation`, `dept_wis
 (3, 'MAI DUBAI DRINKING WATER', '100001', '45845415261', 'A', 'Food', 'LPDS_564', 'DRINKING WATER', 'MAI DUBAI DRINKING WATER', 'DC', 2, 1, 1, 20, NULL, NULL, 1, NULL, '2020-09-19 00:28:42', '2020-09-19 00:28:42'),
 (6, 'AKTER GOLD SONA MASOORI RICE 18KG', '222222', '330972', 'A', 'Food', 'LPDS_222', 'AKTER GOLD SONA MASOORI RICE 18KG', 'AKTER GOLD SONA MASOORI RICE 18KG', 'DC', 1, 1, 1, 16, NULL, NULL, 1, NULL, '2020-09-19 00:37:41', '2020-09-19 00:37:41'),
 (11, 'U DRINKING WATER 1.5Ltrx6\'s', '333333', '111111111111111', 'A', 'Food', 'LPDS_333', 'U DRINKING WATER 1.5Ltrx6\'s', 'U DRINKING WATER 1.5Ltrx6\'s', 'DC', 1, 1, 1, 15, NULL, NULL, 1, NULL, '2020-09-19 00:41:35', '2020-09-19 00:41:35'),
-(12, 'AL AIN UHT MILK FULL CREAM 1Ltr x 4\'s', '444444', '22222222222222', 'A', 'Food', 'LPDS_444', 'AL AIN UHT MILK FULL CREAM 1Ltr x 4\'s', 'AL AIN UHT MILK FULL CREAM 1Ltr x 4\'s', 'DC', 2, 1, 3, 15, NULL, NULL, 1, NULL, '2020-09-19 00:42:31', '2020-09-19 00:42:31'),
+(12, 'AL AIN UHT MILK FULL CREAM 1Ltr x 4\'s', '444444', '22222222222222', 'A', 'Food', 'LPDS_444', 'AL AIN UHT MILK FULL CREAM 1Ltr x 4\'s', 'AL AIN UHT MILK FULL CREAM 1Ltr x 4\'s', 'DC', 2, 1, 3, 15, 50, NULL, 1, NULL, '2020-09-19 00:42:31', '2020-09-19 00:42:31'),
 (13, 'SHUROOQ COOKING & FRYING OIL 1.5Ltr', '5555550', '2222222222333333', 'A', 'Food', 'LPDS_555', 'SHUROOQ COOKING & FRYING OIL 1.5Ltr', 'SHUROOQ COOKING & FRYING OIL 1.5Ltr', 'DC', 2, 1, 1, 15, NULL, NULL, 1, NULL, '2020-09-19 00:43:34', '2020-09-19 00:43:34'),
-(14, 'WHITE FRESH WHITE EGGS 30.S', '7777777', '222222565555', 'A', 'Food', 'LPDS_555', 'WHITE FRESH WHITE EGGS 30.S', 'WHITE FRESH WHITE EGGS 30.S', 'DC', 1, 1, 1, 15, NULL, NULL, 1, NULL, '2020-09-19 00:50:51', '2020-09-19 00:50:51'),
+(14, 'WHITE FRESH WHITE EGGS 30.S', '7777777', '222222565555', 'A', 'Food', 'LPDS_555', 'WHITE FRESH WHITE EGGS 30.S', 'WHITE FRESH WHITE EGGS 30.S', 'DC', 1, 1, 1, 15, 10, NULL, 1, NULL, '2020-09-19 00:50:51', '2020-09-19 00:50:51'),
 (15, 'SEARA CHICKEN WHOLE 1000Gm', '888888', '544444444561', 'A', 'Frozen', 'LPDS_333', 'SEARA CHICKEN WHOLE 1000Gm', 'SEARA CHICKEN WHOLE 1000Gm', 'DC', 3, 1, 2, 15, NULL, NULL, 1, NULL, '2020-09-19 00:51:58', '2020-09-19 00:51:58'),
 (16, 'HEINZ GREEN PEAS FROZEN 450Gm (2+1\'s)', '999999', '1521455555', 'A', 'Frozen', 'LPDS_222', 'HEINZ GREEN PEAS FROZEN 450Gm (2+1\'s)', 'HEINZ GREEN PEAS FROZEN 450Gm (2+1\'s)', 'DC', 3, 1, 2, 15, NULL, NULL, 1, NULL, '2020-09-19 00:52:58', '2020-09-19 00:52:58'),
-(17, 'KESKI FISH 250gm', '121212', '2222222444444', 'A', 'Frozen', 'LPDS_333', 'KESKI FISH 250gm', 'KESKI FISH 250gm', 'DC', 3, 1, 2, 15, NULL, NULL, 1, NULL, '2020-09-19 00:54:08', '2020-09-19 00:54:08'),
+(17, 'KESKI FISH 250gm', '121212', '2222222444444', 'A', 'Frozen', 'LPDS_333', 'KESKI FISH 250gm', 'KESKI FISH 250gm', 'DC', 3, 1, 2, 15, NULL, NULL, 1, 1, '2020-09-19 00:54:08', '2020-09-19 00:54:08'),
 (18, 'Fortune Chakki Fresh Atta 5 kg', '666666', '5614141414141414547', 'A', 'Food', 'LPDS_333', 'Fortune Chakki Fresh Atta 5 kg', 'Fortune Chakki Fresh Atta 5 kg', 'DC', 1, 1, 1, 15, NULL, NULL, 1, NULL, '2020-09-19 02:03:37', '2020-09-19 02:03:37'),
 (19, 'PANJARE TUNA FISH IN OIL 155GM', '222222', '215645645314', 'A', 'Food', 'LPDS_333', 'PANJARE TUNA FISH IN OIL 155GM', 'PANJARE TUNA FISH IN OIL 155GM', 'DC', 1, 1, 1, 5, NULL, NULL, 1, NULL, '2020-09-19 02:04:53', '2020-09-19 02:04:53'),
 (20, 'AMERICAN CLASSIC TUNA LIGHT MEAT FLAKES IN SOYA BEAN OIL 185GM', '111122', '121125153', 'A', 'Food', 'LPDS_333', 'AMERICAN CLASSIC TUNA LIGHT MEAT FLAKES IN SOYA BEAN OIL 185GM', 'AMERICAN CLASSIC TUNA LIGHT MEAT FLAKES IN SOYA BEAN OIL 185GM', 'DC', 1, 1, 1, 15, NULL, NULL, 1, NULL, '2020-09-19 02:05:52', '2020-09-19 02:05:52'),
@@ -478,7 +499,7 @@ INSERT INTO `product_pricings` (`id`, `product_id`, `final_cost`, `avg_cost`, `l
 (9, 14, 21.00, 21.00, 23.00, 30.00, 28.66, 27.30, '2020-09-19 00:50:51', '2020-09-19 00:50:51'),
 (10, 15, 10.00, 12.00, 13.00, 30.00, 13.65, 13.00, '2020-09-19 00:51:58', '2020-09-19 00:51:58'),
 (11, 16, 15.00, 16.00, 17.00, 30.00, 20.48, 19.50, '2020-09-19 00:52:58', '2020-09-19 00:52:58'),
-(12, 17, 20.00, 21.00, 24.00, 30.00, 27.30, 26.00, '2020-09-19 00:54:08', '2020-09-19 00:54:08'),
+(12, 17, 20.00, 21.00, 24.00, 25.00, 26.25, 26.00, '2020-09-19 00:54:08', '2020-10-11 10:33:45'),
 (13, 18, 20.00, 21.00, 22.00, 30.00, 27.30, 26.00, '2020-09-19 02:03:37', '2020-09-19 02:03:37'),
 (14, 19, 16.00, 17.00, 19.00, 30.00, 21.84, 20.80, '2020-09-19 02:04:53', '2020-09-19 02:04:53'),
 (15, 20, 22.00, 23.00, 24.00, 30.00, 30.03, 28.60, '2020-09-19 02:05:52', '2020-09-19 02:05:52'),
@@ -574,6 +595,14 @@ CREATE TABLE `purchases` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `purchases`
+--
+
+INSERT INTO `purchases` (`id`, `date`, `requisition_date`, `vendor_confirm_date`, `shipping_date`, `reference`, `location_id`, `status`, `document_file`, `is_foc`, `vendor_id`, `discount`, `tax`, `note`, `user_id`, `created_at`, `updated_at`) VALUES
+(1, '2020/10/15 07:10:33', '2020/10/15 07:10:33', '2020/10/15 07:10:33', '2020/10/15 07:10:33', 'LPO0010001', 2, 1, '', 0, 1, 0.00, 0.00, NULL, 1, '2020-10-15 13:17:10', '2020-10-15 13:17:10'),
+(2, '2020/10/16 05:10', '2020/10/16 05:10', '2020/10/16 05:10', '2020/10/16 05:10', 'LPO0010002', 1, 1, '', 0, 1, 0.00, 0.00, NULL, 1, '2020-10-16 11:50:56', '2020-10-16 11:50:56');
+
 -- --------------------------------------------------------
 
 --
@@ -591,6 +620,14 @@ CREATE TABLE `purchase_order_wise_items` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `purchase_order_wise_items`
+--
+
+INSERT INTO `purchase_order_wise_items` (`id`, `item_id`, `location_id`, `purchase_id`, `quantity`, `cost`, `discount`, `created_at`, `updated_at`) VALUES
+(1, 17, 2, 1, 10, 20, 0.00, '2020-10-15 13:17:10', '2020-10-15 13:17:10'),
+(2, 3, 1, 2, 10, 10, 0.00, '2020-10-16 11:50:56', '2020-10-16 11:50:56');
 
 -- --------------------------------------------------------
 
@@ -744,7 +781,8 @@ CREATE TABLE `stock_calculations` (
 --
 
 INSERT INTO `stock_calculations` (`id`, `zone`, `item_id`, `store_id`, `stock`, `counted_stock`, `user_id`, `status`, `created_at`, `updated_at`) VALUES
-(1, '301', 17, 1, 0, 50, 1, 1, '2020-10-04 22:36:27', '2020-10-04 22:37:39');
+(1, '301', 17, 1, 0, 50, 1, 1, '2020-10-04 22:36:27', '2020-10-04 22:37:39'),
+(2, '301', 3, 1, 0, 20, 1, 1, '2020-10-04 22:36:27', '2020-10-04 22:37:39');
 
 -- --------------------------------------------------------
 
@@ -813,6 +851,15 @@ CREATE TABLE `transfers` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `transfers`
+--
+
+INSERT INTO `transfers` (`id`, `date`, `reference`, `transfer_from`, `transfer_to`, `status`, `document_file`, `note`, `user_id`, `created_at`, `updated_at`) VALUES
+(1, '2020/10/14 06:10:06', 'TRN0010001', 1, 2, 1, '', NULL, 1, '2020-10-14 12:28:29', '2020-10-14 12:28:29'),
+(2, '2020/10/16 05:10:30', 'TRN0010002', 1, 2, 1, '', NULL, 1, '2020-10-16 11:20:14', '2020-10-16 11:20:14'),
+(3, '2020/10/16 05:10:23', 'TRN0010003', 1, 2, 1, '', NULL, 1, '2020-10-16 11:52:10', '2020-10-16 11:52:10');
+
 -- --------------------------------------------------------
 
 --
@@ -827,6 +874,16 @@ CREATE TABLE `transfer_items` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `transfer_items`
+--
+
+INSERT INTO `transfer_items` (`id`, `transfer_id`, `item_id`, `quantity`, `created_at`, `updated_at`) VALUES
+(1, 1, 17, 6, '2020-10-14 12:28:29', '2020-10-14 12:28:29'),
+(2, 2, 17, 5, '2020-10-16 11:20:14', '2020-10-16 11:20:14'),
+(3, 3, 17, 4, '2020-10-16 11:52:10', '2020-10-16 11:52:10'),
+(4, 3, 3, 3, '2020-10-16 11:52:10', '2020-10-16 11:52:10');
 
 -- --------------------------------------------------------
 
@@ -879,6 +936,23 @@ CREATE TABLE `trn_receives` (
   `quantity` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `status` int(11) DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `trn_receive_items`
+--
+
+CREATE TABLE `trn_receive_items` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `trn_receive_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `cost` double(8,2) NOT NULL,
+  `discount` double(8,2) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -982,6 +1056,12 @@ ALTER TABLE `categories`
 -- Indexes for table `combos`
 --
 ALTER TABLE `combos`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `combo_items`
+--
+ALTER TABLE `combo_items`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1197,6 +1277,12 @@ ALTER TABLE `trn_receives`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `trn_receive_items`
+--
+ALTER TABLE `trn_receive_items`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `units`
 --
 ALTER TABLE `units`
@@ -1238,6 +1324,12 @@ ALTER TABLE `combos`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `combo_items`
+--
+ALTER TABLE `combo_items`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `damages`
 --
 ALTER TABLE `damages`
@@ -1277,7 +1369,7 @@ ALTER TABLE `lpo_receive_items`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `offers`
@@ -1295,7 +1387,7 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT for table `price_update_histories`
 --
 ALTER TABLE `price_update_histories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -1325,13 +1417,13 @@ ALTER TABLE `promotional_products`
 -- AUTO_INCREMENT for table `purchases`
 --
 ALTER TABLE `purchases`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `purchase_order_wise_items`
 --
 ALTER TABLE `purchase_order_wise_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `purchase_returns`
@@ -1373,7 +1465,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `stock_calculations`
 --
 ALTER TABLE `stock_calculations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `stores`
@@ -1391,13 +1483,13 @@ ALTER TABLE `taxes`
 -- AUTO_INCREMENT for table `transfers`
 --
 ALTER TABLE `transfers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `transfer_items`
 --
 ALTER TABLE `transfer_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `transfer_returns`
@@ -1415,6 +1507,12 @@ ALTER TABLE `transfer_return_items`
 -- AUTO_INCREMENT for table `trn_receives`
 --
 ALTER TABLE `trn_receives`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `trn_receive_items`
+--
+ALTER TABLE `trn_receive_items`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
