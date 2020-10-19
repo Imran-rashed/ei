@@ -11,7 +11,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h5>Receive LPO</h5>
+                                <h5>Receive TRN</h5>
 
                             </div>
                             <div class="card-body">
@@ -97,7 +97,7 @@
                                                                 <input type="hidden" class="form-control" v-bind:name="getInputName(index, 'id')" :value="selected_item.id">
                                                                 @{{ selected_item.code + '-' + selected_item.name}}</td>
                                                                 <td>@{{ selected_item.prices.last_grn_cost }}</td>
-                                                                <td><input type="number" class="form-control" :value="selected_item.transfer.cost" v-bind:name="getInputName(index, 'cost')" readonly ></td>
+                                                                <td><input type="number" class="form-control" :value="selected_item.prices.final_cost" v-bind:name="getInputName(index, 'cost')" readonly ></td>
                                                                 <td><input type="number" class="form-control" :value="selected_item.transfer.quantity" v-bind:name="getInputName(index, 'quantity')" readonly ></td>
                                                                 <td><input type="number" class="form-control" :value="selected_item.transfer.discount" v-bind:name="getInputName(index, 'discount')" readonly></td>
                                                                 <td>@{{ (selected_items[index].transfer.quantity * selected_item.prices.final_cost) - (((selected_items[index].transfer.quantity * selected_item.prices.final_cost)*selected_items[index].transfer.discount)/100) }}</td>

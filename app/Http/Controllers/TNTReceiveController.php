@@ -61,12 +61,13 @@ class TNTReceiveController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'shop_code' => 'required',
+            //'shop_code' => 'required',
             'reference_no' => 'required',
-            'unit_cost' => 'required',
-            'quantity' => 'required',
-            'item_id' => 'required',
-            'item_code' => 'required'
+            'transfer_items'=>'required'
+            //'unit_cost' => 'required',
+            //'quantity' => 'required',
+            //'item_id' => 'required',
+            //'item_code' => 'required'
         ]);
         $tnt = new TrnReceive();
 
@@ -78,11 +79,23 @@ class TNTReceiveController extends Controller
         //$tnt->item_code = $request->item_code;
         //$tnt->unit_cost = $request->unit_cost;
         //$tnt->quantity = $request->quantity;
-        $receive->reference_no = $request->ref;
+        $transfer->reference_no = $request->ref;
         //$tnt->item_id = $request->item_id;
         $tnt->user_id = Auth::id();
 
         if($tnt->save()){
+
+            $transfer_items = $request->transfer_items;
+            foreach($transfer_items as $item){
+                $lpo_item = new \App\TrnReceiveItem();
+                $lpo_item->trn_receive_id = $transfer->id;
+                $lpo_item->item_id = $item['id'];
+                $lpo_item->cost = $item['cost'];
+                $lpo_item->quantity = $item['quantity'];
+                $lpo_item->discount = $item['discount'];
+                $lpo_item->save();
+
+            }
             return redirect()->back()->with('success', 'Added Successfully!');            
         }
 
