@@ -158,7 +158,7 @@ const app = new Vue({
         fetchItems: function(search, loading){
             let ref = this;
             console.log(search);
-            axios.post('/api/item/list',{'search':search}).then(function(resposne){
+            axios.post("{{ url('/api/item/list') }}",{'search':search}).then(function(resposne){
                 let data = resposne.data;
                 console.log(data);
                 if(data.status == 1){
@@ -172,14 +172,14 @@ const app = new Vue({
 
         fetchInitItems: function(){
             let ref = this;
-            axios.get('/api/item/list/init').then(function(resposne){
+            axios.get("{{ url('/api/item/list/init') }}").then(function(resposne){
                 ref.item_info = resposne.data.results;
             });
         },
         fetch_unit: function(){
             var ref = this;
             ref.units = null;
-            let url = '/api/unit/list';
+            let url = "{{ url('/api/unit/list') }}";
             axios.get(url).then(function(resposne){
                 ref.units = resposne.data; 
             });
@@ -189,7 +189,7 @@ const app = new Vue({
         fetch_product_info: function(value){
             let ref = this;
             let product_id = value.code;
-            axios.post('/api/item/info', {'id':product_id}).then(function(resposne){
+            axios.post("{{ url('/api/item/info') }}", {'id':product_id}).then(function(resposne){
                 
                 ref.selected_item.id = resposne.data.id;
                 ref.selected_item.name = resposne.data.name;
@@ -200,14 +200,14 @@ const app = new Vue({
         },
         fetchLocation: function(){
             let ref = this;
-            axios.get('/api/location/list/init').then(function(resposne){
+            axios.get("{{ url('/api/location/list/init') }}").then(function(resposne){
                 ref.location_list = resposne.data.results;
             });
         },
         fetch_location_info: function(value){
             let ref = this;
             let store_id = value;
-            axios.post('/api/location/info', {'id':store_id}).then(function(resposne){
+            axios.post("{{ url('/api/location/info') }}", {'id':store_id}).then(function(resposne){
                 ref.selected_location.id = resposne.data[0].id;
                 ref.selected_location.name = resposne.data[0].name;
             });
@@ -240,7 +240,7 @@ const app = new Vue({
         },
         autoGenerateRef: function(){
             let ref = this;
-            axios.post('/api/reference/generate', {'table':'adjustments', 'refcode':'ADJ'}).then(function(response){
+            axios.post("{{ url('/api/reference/generate') }}", {'table':'adjustments', 'refcode':'ADJ'}).then(function(response){
                 ref.reference = response.data.reference;
             });
 
