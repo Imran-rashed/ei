@@ -151,6 +151,7 @@ class LPOReceiveController extends Controller
 
         if($receive->save()){
             $received_items = $request->received_items;
+            $data = array(); //code by mostofa
             foreach($received_items as $item){
                 $lpo_item = new \App\LpoReceiveItem();
                 $lpo_item->lpo_receive_id = $receive->id;
@@ -159,8 +160,16 @@ class LPOReceiveController extends Controller
                 $lpo_item->quantity = $item['quantity'];
                 $lpo_item->discount = $item['discount'];
                 $lpo_item->save();
+                //coded by mostofa
+                //item_id, location_id,op_type=1,quantity,end_point=3
+                $push_data = [$lpo_item->item_id,$purchase->location_id,1,$lpo_item->quantity,3];
+                array_push($data, $push_data);
 
             }
+
+            
+            \Helpers::callStockInOut($data);
+
 
             return redirect()->back()->with('success', 'Added Successfully!');
         }

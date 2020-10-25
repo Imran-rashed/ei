@@ -5,6 +5,8 @@ use App\Damage;
 use App\Adjustment;
 use App\PriceUpdateHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 /**
  * Helper functions that need globally
  */
@@ -17,6 +19,8 @@ class Helpers
 	}
 
 	public static function currentStock($item_id){
+
+    /*
 		$product = Product::with(['prices', 'purchase_items', 'purchase_return_items'])->where('id', $item_id)->first();
     $damage = Damage::where('item_id', $item_id)->sum('quantity');
     $adjustment = Adjustment::where('item_id', $item_id)->sum('quantity');
@@ -38,8 +42,11 @@ class Helpers
           $total = $total - $damage;
           $total = $total + $adjustment;
           return $total;
+    */
+          return self::stockTotalItems($item_id);
 	} 
   public static function currentStockLocationWise($item_id, $location){
+    /*
     $product = Product::with(['prices', 'purchase_items'=>function($query)use($location){
 
         $query->where('location_id','=', $location);
@@ -69,6 +76,8 @@ class Helpers
           $total = $total + $adjustment;
 
           return $total;
+          */
+          return self::stockTotalItems($item_id, $location);
   } 
 
   public static function purchaseGrandTotal($purchase_id){
@@ -245,5 +254,81 @@ class Helpers
             return $prefix . str_pad(1, $idLength, '0', STR_PAD_LEFT);
         }
     }
+
+    //stock and stock balance in out
+    public static function StockInOut($data){
+
+            //first check balaance from stock_balance table
+            $item = $data[0];
+            $location = $data[1];
+            $optype = $data[2];
+            $quantity = $data[3];
+            $ep = isset($data[4])?$data[4]:null;
+
+            $stock_balance = DB::table('stock_balances')
+            ->select('balance_quantity')
+            ->where(['item_id'=>$item,'location_id'=>$location])
+            ->first();
+
+            $balance = isset($stock_balance)?$stock_balance->balance_quantity:0;
+
+            if(($balance-$quantity) < 0 && $optype == 2){
+                return 0;
+            }else{
+                
+                $balance = $optype == 1 ? $balance+$quantity : $balance - $quantity;  
+                
+               
+
+                    DB::table('stocks')->insert([
+                        'item_id'=>$item,
+                        'location_id'=>$location,
+                        'quantity'=>$quantity,
+                        'op_type'=>$optype,
+                        'e_p'=>$ep,
+                        'user_id'=>\Auth::id(),
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
+                    if(isset($stock_balance)){                  
+                        DB::table('stock_balances')
+                        ->where(['item_id'=>$item,'location_id'=>$location])
+                        ->update([
+                            'balance_quantity' => $balance,
+                            'op_type'=>$optype,
+                            'updated_at' => Carbon::now(),
+                        ]);
+
+                    }else{
+                        DB::table('stock_balances')->insert([
+                            'item_id'=>$item,
+                            'location_id'=>$location,
+                            'balance_quantity'=>$balance,
+                            'op_type'=>$optype,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                        ]);
+                    }
+
+                    
+                    return 1;
+          }
+    }
+
+    public static function stockTotalItems($item_id, $location_id=null){
+      
+      $query = isset($location_id)? 
+      "SELECT sum(balance_quantity) as total from stock_balances group by item_id,location_id having item_id = ? and location_id = ?" :
+      "SELECT sum(balance_quantity) as total from stock_balances group by item_id having item_id = ?";
+      $result = DB::select($query, isset($location_id)?[$item_id, $location_id]:[$item_id]);
+      return isset($result[0])?$result[0]->total:0;
+
+    }
+
+    public static function callStockInOut($data){
+      \Artisan::call('operation:stockinout',['stock_info'=>$data]);
+
+    }
+
 }
 

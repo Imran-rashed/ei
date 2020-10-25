@@ -61,12 +61,13 @@ class TNTReceiveController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'shop_code' => 'required',
+            //'shop_code' => 'required',
             'reference_no' => 'required',
-            'unit_cost' => 'required',
-            'quantity' => 'required',
-            'item_id' => 'required',
-            'item_code' => 'required'
+            'transfer_items'=>'required'
+            //'unit_cost' => 'required',
+            //'quantity' => 'required',
+            //'item_id' => 'required',
+            //'item_code' => 'required'
         ]);
         $tnt = new TrnReceive();
 
@@ -78,11 +79,36 @@ class TNTReceiveController extends Controller
         //$tnt->item_code = $request->item_code;
         //$tnt->unit_cost = $request->unit_cost;
         //$tnt->quantity = $request->quantity;
-        $receive->reference_no = $request->ref;
+        $transfer->reference_no = $request->ref;
         //$tnt->item_id = $request->item_id;
         $tnt->user_id = Auth::id();
 
         if($tnt->save()){
+
+            $transfer_items = $request->transfer_items;
+            $from_data = array(); //code by mostofa
+            $to_data = array(); //code by mostofa            
+            foreach($transfer_items as $item){
+                $lpo_item = new \App\TrnReceiveItem();
+                $lpo_item->trn_receive_id = $transfer->id;
+                $lpo_item->item_id = $item['id'];
+                $lpo_item->cost = $item['cost'];
+                $lpo_item->quantity = $item['quantity'];
+                $lpo_item->discount = $item['discount'];
+                $lpo_item->save();
+                //coded by mostofa
+                //item_id, location_id,op_type=2,quantity,end_point=4                
+                $from_push = [$lpo_item->item_id,$transfer->transfer_from,2,$lpo_item->quantity,4];
+                //item_id,location_id,op_type=1,quantity,end_point=4
+                $to_push = [$lpo_item->item_id,$transfer->transfer_to,1,$lpo_item->quantity,4];
+                array_push($from_data, $from_push);
+                array_push($to_data, $to_push);
+
+            }
+            //code by mostofa
+            $data = array_merge($from_data, $to_data);
+            \Helpers::callStockInOut($data);
+
             return redirect()->back()->with('success', 'Added Successfully!');            
         }
 

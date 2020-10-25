@@ -96,6 +96,12 @@ class DamageController extends Controller
         $adjust->note = $request->note;
 
         if($adjust->save()){
+            $data=[
+                //item_id, location_id,op_type=2,quantity,end_point=5
+                [$adjust->item_id,$adjust->location,2,$adjust->quantity,5]
+            ];
+            \Helpers::callStockInOut($data);
+
             return redirect()->back()->with('success', 'Added Successfully!');
         }else{
             return redirect()->back()->with('error', 'Something wrong!');

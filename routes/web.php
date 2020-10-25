@@ -17,7 +17,15 @@ Route::get('/', function () {
 });
 
 Route::get('/testing', function(){
-	dd(Helpers::getProductPrice(3,4));
+	//dd(Helpers::getProductPrice(3,4));
+	/*
+	$data=[
+     [1,1,1,7,1],
+     [1,2,1,2,1]
+    ];
+    Helpers::callStockInOut($data);
+    */
+    //var_dump(Helpers::stockTotalItems(3,2));
 
 });
    
