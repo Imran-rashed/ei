@@ -98,7 +98,15 @@ class AdjustmentController extends Controller
         $adjust->note = $request->note;
         $adjust->user_id = \Auth::id();
 
+
+
         if($adjust->save()){
+            $data=[
+                //item_id, location_id,op_type=1,quantity,end_point=2
+                [$adjust->item_id,$adjust->location,1,$adjust->quantity,2]
+            ];
+            \Helpers::callStockInOut($data);
+
             return redirect()->back()->with('success', 'Added Successfully!');
         }else{
             return redirect()->back()->with('error', 'Something wrong!');
