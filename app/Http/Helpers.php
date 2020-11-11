@@ -315,6 +315,67 @@ class Helpers
           }
     }
 
+
+    //stock and stock balance in out
+    public static function StockInOutVendor($data){
+
+            //first check balaance from stock_balance table
+            $item = $data[0];
+            $location = $data[1];
+            $optype = $data[2];
+            $quantity = $data[3];
+            $ep = isset($data[4])?$data[4]:null;
+
+            $stock_balance = DB::table('vendor_stock_balances')
+            ->select('balance_quantity')
+            ->where(['item_id'=>$item,'vendor_id'=>$location])
+            ->first();
+
+            $balance = isset($stock_balance)?$stock_balance->balance_quantity:0;
+
+            if(($balance-$quantity) < 0 && $optype == 2){
+                return 0;
+            }else{
+                
+                $balance = $optype == 1 ? $balance+$quantity : $balance - $quantity;  
+                
+               
+
+                    DB::table('vendor_stocks')->insert([
+                        'item_id'=>$item,
+                        'vendor_id'=>$location,
+                        'quantity'=>$quantity,
+                        'op_type'=>$optype,
+                        'e_p'=>$ep,
+                        'user_id'=>\Auth::id(),
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
+                    if(isset($stock_balance)){                  
+                        DB::table('vendor_stock_balances')
+                        ->where(['item_id'=>$item,'vendor_id'=>$location])
+                        ->update([
+                            'balance_quantity' => $balance,
+                            'op_type'=>$optype,
+                            'updated_at' => Carbon::now(),
+                        ]);
+
+                    }else{
+                        DB::table('vendor_stock_balances')->insert([
+                            'item_id'=>$item,
+                            'vendor_id'=>$location,
+                            'balance_quantity'=>$balance,
+                            'op_type'=>$optype,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                        ]);
+                    }
+
+                    
+                    return 1;
+          }
+    }
+
     public static function stockTotalItems($item_id, $location_id=null){
       
       $query = isset($location_id)? 
@@ -325,8 +386,10 @@ class Helpers
 
     }
 
-    public static function callStockInOut($data){
-      \Artisan::call('operation:stockinout',['stock_info'=>$data]);
+    public static function callStockInOut($data, $vendor_data=null){
+      \Artisan::call('operation:stockinout',
+        ['stock_info'=>$data, 'vendor_info'=>$vendor_data]
+      );
 
     }
 

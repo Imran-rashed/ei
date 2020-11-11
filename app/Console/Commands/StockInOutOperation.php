@@ -12,7 +12,7 @@ class StockInOutOperation extends Command
      *
      * @var string
      */
-    protected $signature = 'operation:stockinout {stock_info*}';
+    protected $signature = 'operation:stockinout {stock_info*} {vendor_info*}';
 
     /**
      * The console command description.
@@ -46,6 +46,8 @@ class StockInOutOperation extends Command
         );*/
         $data = $this->argument('stock_info');
 
+        $vendor_data = $this->argument('vendor_info');
+
         //var_dump($data);
         //return 0;
 
@@ -64,6 +66,20 @@ class StockInOutOperation extends Command
                     $result = 0;
                     $msg = "!!Item No Available!!";
                     break;
+                }
+            }
+
+            if( isset($vendor_info) && !empty($vendor_info)){
+
+                foreach ($vendor_info as $value) {                
+                
+                    $perfect = Helpers::StockInOutVendor($value);
+                    echo "perfect:".$perfect;
+                    if($perfect < 1) {
+                        $result = 0;
+                        $msg = "!!Item No Available!!";
+                        break;
+                    }
                 }
             }
         

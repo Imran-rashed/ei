@@ -15,8 +15,7 @@ class CreateVendorStockTable extends Migration
     {
         Schema::create('vendor_stocks', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('item_id');
-            $table->bigInteger('location_id')->nullable();
+            $table->bigInteger('item_id');            
             $table->bigInteger('vendor_id')->nullable();
             $table->boolean('op_type')->nullable()->unsigned(false)->default(null)->comment('1=in, 2=out');
             $table->bigInteger('quantity')->default(0);
@@ -33,6 +32,6 @@ class CreateVendorStockTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vendor_stock');
+        Schema::dropIfExists('vendor_stocks');
     }
 }
