@@ -171,10 +171,13 @@ class LPOReceiveController extends Controller
             }
 
             
-            \Helpers::callStockInOut($data, $vendor_data);
+            $operation = \Helpers::callStockInOut($data, $vendor_data);
 
-
-            return redirect()->back()->with('success', 'Added Successfully!');
+            if($operation['result'] > 0){
+                return redirect()->back()->with('success', 'Added Successfully!');
+            }else{
+                return redirect()->back()->with('failed', $operation['msg']);
+            }
         }
     }
 

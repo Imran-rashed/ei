@@ -387,9 +387,12 @@ class Helpers
     }
 
     public static function callStockInOut($data, $vendor_data=null){
-      \Artisan::call('operation:stockinout',
-        ['stock_info'=>$data, 'vendor_info'=>$vendor_data]
-      );
+      \ob_start();
+      $alldata = ['item_location'=>$data, 'item_vendor'=>$vendor_data];
+      \Artisan::call('operation:stockinout',['stock_info'=>$alldata]);
+      $output = \ob_get_clean();
+      //file_put_contents('data.txt', $output);
+      return json_decode($output,true);      
 
     }
 
