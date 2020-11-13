@@ -19,6 +19,18 @@
                                             @if(session('error'))
                                                  <h1 class="text-danger">{{session('error')}}</h1>
                                             @endif
+
+                                            @if ($errors->any())
+                                            <div class="alert alert-danger">
+                                                <ul>
+                                                    @foreach ($errors->all() as $error)
+                                                        <li>{!! $error !!}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endif
+
+
                                 <form action="{{ route('purchase_return.store') }}" method="post" enctype="multipart/form-data">
                                     @csrf
                                     <div class="row">

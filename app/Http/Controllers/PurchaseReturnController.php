@@ -104,13 +104,20 @@ class PurchaseReturnController extends Controller
      */
     public function store(Request $request)
     {
-        //dd($request);
+        //dd($request->all());
         $request->validate([
             'date' => 'required',
-            'reference' => 'required',
-            'location_id' => 'required',
+            'reference' => [
+                'required', 
+                new \App\Rules\PurchaseReturn(
+                    $request->location_id,
+                    $request->vendor_id,
+                    $request->purchase_return_items
+                )
+            ],
+            'location_id' => 'required'            
         ]);
-
+        
         $req = new PurchaseReturn();
         $file_name = '';
         if($request->file('document') != null){
@@ -129,8 +136,11 @@ class PurchaseReturnController extends Controller
         $req->vendor_id = $request->vendor_id;
         $req->note = $request->note;
         $req->user_id = \Auth::id();
+        
         if($req->save()){
             $items = $request->purchase_return_items;
+            $data = array(); //code by mostofa
+            $vendor_data = array(); //code by mostofa
             foreach ($items as $item) {
                 $req_item = new PurchaseReturnItems();
                 $req_item->purchase_return_id = $req->id;//May Cause Error
@@ -138,8 +148,22 @@ class PurchaseReturnController extends Controller
                 $req_item->item_id = $item['id'];
                 $req_item->quantity = $item['quantity'];
                 $req_item->save();
+                //coded by mostofa
+                //item_id, location_id,op_type=1,quantity,end_point=3
+                $push_data = [$req_item->item_id,$req->location_id,2,$req_item->quantity,10];
+                $push_vendor_data=[$req_item->item_id,$req->vendor_id,2,$req_item->quantity,10];
+                array_push($data, $push_data);
+                array_push($vendor_data, $push_vendor_data);
             }
-            return redirect()->back()->with('success', 'Added Successfully!');
+
+            $operation = \Helpers::callStockInOut($data, $vendor_data);
+
+            if($operation['result'] > 0){
+                return redirect()->back()->with('success', 'Added Successfully!');
+            }else{
+                return redirect()->back()->with('failed', $operation['msg']);
+            }
+            
         }
     }
 
