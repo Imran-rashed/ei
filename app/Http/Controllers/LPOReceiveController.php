@@ -147,6 +147,7 @@ class LPOReceiveController extends Controller
         $receive->exipre_date = $request->exipre_date;
         $receive->reference_no = $request->reference;
         $receive->vendor_invoice_no = $request->vendor_invoice_no;
+        $receive->is_paid = false;
         $receive->user_id = Auth::id();
 
         if($receive->save()){
