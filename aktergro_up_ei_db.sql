@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Nov 13, 2020 at 07:49 PM
+-- Generation Time: Nov 16, 2020 at 04:30 PM
 -- Server version: 10.4.14-MariaDB
 -- PHP Version: 7.4.9
 
@@ -221,24 +221,23 @@ INSERT INTO `f_o_c_items` (`id`, `purchase_id`, `item_id`, `quantity`, `created_
 CREATE TABLE `lpo_receives` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `purchase_id` int(11) NOT NULL,
-  `shelf_life` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `exipre_date` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `shelf_life` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `exipre_date` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `reference_no` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vendor_invoice_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_paid` tinyint(1) DEFAULT NULL COMMENT 'false for unpaid, true for paid',
   `user_id` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `vendor_invoice_no` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `lpo_receives`
 --
 
-INSERT INTO `lpo_receives` (`id`, `purchase_id`, `shelf_life`, `exipre_date`, `reference_no`, `user_id`, `created_at`, `updated_at`, `vendor_invoice_no`) VALUES
-(1, 1, '123', '2020/11/11 20:55', 'GRN0010001', 1, '2020-11-11 08:56:00', '2020-11-11 08:56:00', '102'),
-(2, 2, '124', '2020/11/11 20:58', 'GRN0010002', 1, '2020-11-11 08:59:14', '2020-11-11 08:59:14', '103'),
-(3, 3, '125', '2020/11/12 21:01', 'GRN0010003', 1, '2020-11-11 09:01:12', '2020-11-11 09:01:12', '125'),
-(4, 4, '105', '2020/11/14 00:42', 'GRN0010004', 1, '2020-11-13 12:42:48', '2020-11-13 12:42:48', '102');
+INSERT INTO `lpo_receives` (`id`, `purchase_id`, `shelf_life`, `exipre_date`, `reference_no`, `vendor_invoice_no`, `is_paid`, `user_id`, `created_at`, `updated_at`) VALUES
+(1, 1, '101', '2020/11/16 20:54', 'GRN0010001', '102', 1, 1, '2020-11-15 08:54:47', '2020-11-16 09:23:48'),
+(2, 2, '102', '2020/11/16 21:59', 'GRN0010002', '103', 1, 1, '2020-11-15 10:02:05', '2020-11-16 09:23:49');
 
 -- --------------------------------------------------------
 
@@ -262,12 +261,9 @@ CREATE TABLE `lpo_receive_items` (
 --
 
 INSERT INTO `lpo_receive_items` (`id`, `lpo_receive_id`, `item_id`, `quantity`, `cost`, `discount`, `created_at`, `updated_at`) VALUES
-(1, 1, 17, 5, 20.00, 0.00, '2020-11-11 08:56:00', '2020-11-11 08:56:00'),
-(2, 1, 3, 3, 10.00, 0.00, '2020-11-11 08:56:00', '2020-11-11 08:56:00'),
-(3, 2, 11, 3, 20.00, 0.00, '2020-11-11 08:59:14', '2020-11-11 08:59:14'),
-(4, 2, 20, 5, 22.00, 0.00, '2020-11-11 08:59:14', '2020-11-11 08:59:14'),
-(5, 3, 17, 5, 20.00, 0.00, '2020-11-11 09:01:12', '2020-11-11 09:01:12'),
-(6, 4, 17, 7, 20.00, 0.00, '2020-11-13 12:42:49', '2020-11-13 12:42:49');
+(1, 1, 17, 10, 20.00, 0.00, '2020-11-15 08:54:47', '2020-11-15 08:54:47'),
+(2, 1, 3, 5, 10.00, 0.00, '2020-11-15 08:54:47', '2020-11-15 08:54:47'),
+(3, 2, 17, 5, 20.00, 5.00, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
 
 -- --------------------------------------------------------
 
@@ -313,7 +309,6 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (25, '2020_06_16_210446_create_purchase_returns_table', 1),
 (26, '2020_06_16_211352_create_transfer_returns_table', 1),
 (27, '2020_06_16_211718_create_trn_receives_table', 1),
-(28, '2020_06_16_212342_create_lpo_receives_table', 1),
 (29, '2020_06_18_171505_create_requisition_wise_items_table', 1),
 (30, '2020_06_20_185212_create_purchase_order_wise_items_table', 1),
 (31, '2020_06_24_070530_create_f_o_c_items_table', 1),
@@ -325,7 +320,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (40, '2020_10_24_060115_create_stock_table', 4),
 (41, '2020_10_24_063506_create_stock_balances_table', 5),
 (44, '2020_11_08_104626_create_vendor_stock_table', 6),
-(45, '2020_11_08_104829_create_vendor_stock_balances_table', 7);
+(45, '2020_11_08_104829_create_vendor_stock_balances_table', 7),
+(47, '2020_06_16_212342_create_lpo_receives_table', 8);
 
 -- --------------------------------------------------------
 
@@ -636,10 +632,8 @@ CREATE TABLE `purchases` (
 --
 
 INSERT INTO `purchases` (`id`, `date`, `requisition_date`, `vendor_confirm_date`, `shipping_date`, `reference`, `location_id`, `status`, `document_file`, `is_foc`, `vendor_id`, `discount`, `tax`, `note`, `user_id`, `created_at`, `updated_at`) VALUES
-(1, '2020/11/11 02:11:11', '2020/11/11 02:11:11', '2020/11/11 02:11:11', '2020/11/11 02:11:11', 'LPO0010001', 1, 1, '', 0, 1, 0.00, 0.00, NULL, 1, '2020-11-11 08:20:01', '2020-11-11 08:20:01'),
-(2, '2020/11/11 02:11:56', '2020/11/11 02:11:56', '2020/11/11 02:11:56', '2020/11/11 02:11:56', 'LPO0010002', 1, 0, '', 0, 2, 0.00, 0.00, NULL, 1, '2020-11-11 08:57:52', '2020-11-11 08:57:52'),
-(3, '2020/11/11 03:11:15', '2020/11/11 03:11:15', '2020/11/11 03:11:15', '2020/11/11 03:11:15', 'LPO0010003', 1, 0, '', 0, 1, 0.00, 0.00, NULL, 1, '2020-11-11 09:00:38', '2020-11-11 09:00:38'),
-(4, '2020/11/13 06:11:32', '2020/11/13 06:11:32', '2020/11/13 06:11:32', '2020/11/13 06:11:32', 'LPO0010004', 2, 1, '', 0, 1, 0.00, 0.00, NULL, 1, '2020-11-13 12:42:05', '2020-11-13 12:42:05');
+(1, '2020/11/15 02:11:09', '2020/11/15 02:11:09', '2020/11/15 02:11:09', '2020/11/15 02:11:09', 'LPO0010001', 1, 0, '', 0, 1, 0.00, 0.00, NULL, 1, '2020-11-15 08:53:54', '2020-11-15 08:53:54'),
+(2, '2020/11/15 03:11:39', '2020/11/15 03:11:39', '2020/11/15 03:11:39', '2020/11/15 03:11:39', 'LPO0010002', 2, 0, '', 0, 2, 0.00, 0.00, NULL, 1, '2020-11-15 09:58:54', '2020-11-15 09:58:54');
 
 -- --------------------------------------------------------
 
@@ -664,12 +658,9 @@ CREATE TABLE `purchase_order_wise_items` (
 --
 
 INSERT INTO `purchase_order_wise_items` (`id`, `item_id`, `location_id`, `purchase_id`, `quantity`, `cost`, `discount`, `created_at`, `updated_at`) VALUES
-(1, 17, 1, 1, 5, 20, 0.00, '2020-11-11 08:20:01', '2020-11-11 08:20:01'),
-(2, 3, 1, 1, 3, 10, 0.00, '2020-11-11 08:20:01', '2020-11-11 08:20:01'),
-(3, 20, 1, 2, 5, 22, 0.00, '2020-11-11 08:57:52', '2020-11-11 08:57:52'),
-(4, 11, 1, 2, 3, 20, 0.00, '2020-11-11 08:57:52', '2020-11-11 08:57:52'),
-(5, 17, 1, 3, 5, 20, 0.00, '2020-11-11 09:00:38', '2020-11-11 09:00:38'),
-(6, 17, 2, 4, 7, 20, 0.00, '2020-11-13 12:42:05', '2020-11-13 12:42:05');
+(1, 17, 1, 1, 10, 20, 0.00, '2020-11-15 08:53:54', '2020-11-15 08:53:54'),
+(2, 3, 1, 1, 5, 10, 0.00, '2020-11-15 08:53:54', '2020-11-15 08:53:54'),
+(3, 17, 2, 2, 5, 20, 5.00, '2020-11-15 09:58:54', '2020-11-15 09:58:54');
 
 -- --------------------------------------------------------
 
@@ -691,14 +682,6 @@ CREATE TABLE `purchase_returns` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `purchase_returns`
---
-
-INSERT INTO `purchase_returns` (`id`, `date`, `reference`, `location_id`, `status`, `document_file`, `vendor_id`, `note`, `user_id`, `created_at`, `updated_at`) VALUES
-(1, '2020/11/13 09:11:53', 'GRV0010001', 1, 1, '', 1, NULL, 1, '2020-11-13 03:57:11', '2020-11-13 03:57:11'),
-(2, '2020/11/13 06:11:43', 'GRV0010002', 2, 2, '', 1, NULL, 1, '2020-11-13 12:47:58', '2020-11-13 12:47:58');
-
 -- --------------------------------------------------------
 
 --
@@ -714,14 +697,6 @@ CREATE TABLE `purchase_return_items` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `purchase_return_items`
---
-
-INSERT INTO `purchase_return_items` (`id`, `item_id`, `location_id`, `purchase_return_id`, `quantity`, `created_at`, `updated_at`) VALUES
-(1, 17, 1, 1, 5, '2020-11-13 03:57:11', '2020-11-13 03:57:11'),
-(2, 17, 2, 2, 12, '2020-11-13 12:47:58', '2020-11-13 12:47:58');
 
 -- --------------------------------------------------------
 
@@ -838,16 +813,9 @@ CREATE TABLE `stocks` (
 --
 
 INSERT INTO `stocks` (`id`, `item_id`, `location_id`, `op_type`, `quantity`, `user_id`, `e_p`, `created_at`, `updated_at`) VALUES
-(1, 17, 1, 1, 5, 1, 3, '2020-11-11 08:56:00', '2020-11-11 08:56:00'),
-(2, 3, 1, 1, 3, 1, 3, '2020-11-11 08:56:00', '2020-11-11 08:56:00'),
-(3, 11, 1, 1, 3, 1, 3, '2020-11-11 08:59:14', '2020-11-11 08:59:14'),
-(4, 20, 1, 1, 5, 1, 3, '2020-11-11 08:59:15', '2020-11-11 08:59:15'),
-(5, 17, 1, 1, 5, 1, 3, '2020-11-11 09:01:12', '2020-11-11 09:01:12'),
-(6, 17, 1, 2, 5, 1, 10, '2020-11-13 03:57:14', '2020-11-13 03:57:14'),
-(7, 17, 2, 1, 7, 1, 3, '2020-11-13 12:42:49', '2020-11-13 12:42:49'),
-(8, 17, 1, 2, 5, 1, 4, '2020-11-13 12:46:13', '2020-11-13 12:46:13'),
-(9, 17, 2, 1, 5, 1, 4, '2020-11-13 12:46:13', '2020-11-13 12:46:13'),
-(10, 17, 2, 2, 12, 1, 10, '2020-11-13 12:47:58', '2020-11-13 12:47:58');
+(1, 17, 1, 1, 10, 1, 3, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
+(2, 3, 1, 1, 5, 1, 3, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
+(3, 17, 2, 1, 5, 1, 3, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
 
 -- --------------------------------------------------------
 
@@ -869,11 +837,9 @@ CREATE TABLE `stock_balances` (
 --
 
 INSERT INTO `stock_balances` (`item_id`, `location_id`, `op_type`, `balance_quantity`, `created_at`, `updated_at`) VALUES
-(3, 1, 1, 3, '2020-11-11 08:56:00', '2020-11-11 08:56:00'),
-(11, 1, 1, 3, '2020-11-11 08:59:14', '2020-11-11 08:59:14'),
-(17, 1, 2, 0, '2020-11-11 08:56:00', '2020-11-13 12:46:13'),
-(17, 2, 2, 0, '2020-11-13 12:42:49', '2020-11-13 12:47:58'),
-(20, 1, 1, 5, '2020-11-11 08:59:15', '2020-11-11 08:59:15');
+(3, 1, 1, 5, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
+(17, 1, 1, 10, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
+(17, 2, 1, 5, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
 
 -- --------------------------------------------------------
 
@@ -961,15 +927,6 @@ CREATE TABLE `transfers` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `transfers`
---
-
-INSERT INTO `transfers` (`id`, `date`, `reference`, `transfer_from`, `transfer_to`, `status`, `document_file`, `note`, `user_id`, `created_at`, `updated_at`) VALUES
-(1, '2020/10/25 12:10:18', 'TRN0010001', 2, 1, 1, '', NULL, 1, '2020-10-25 06:34:13', '2020-10-25 06:34:13'),
-(2, '2020/10/25 01:10:29', 'TRN0010002', 1, 2, 1, '', NULL, 1, '2020-10-25 07:29:50', '2020-10-25 07:29:50'),
-(3, '2020/11/13 06:11:00', 'TRN0010003', 1, 2, 1, '', NULL, 1, '2020-11-13 12:44:33', '2020-11-13 12:44:33');
-
 -- --------------------------------------------------------
 
 --
@@ -984,16 +941,6 @@ CREATE TABLE `transfer_items` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `transfer_items`
---
-
-INSERT INTO `transfer_items` (`id`, `transfer_id`, `item_id`, `quantity`, `created_at`, `updated_at`) VALUES
-(1, 1, 17, 5, '2020-10-25 06:34:13', '2020-10-25 06:34:13'),
-(2, 1, 3, 3, '2020-10-25 06:34:13', '2020-10-25 06:34:13'),
-(3, 2, 17, 5, '2020-10-25 07:29:50', '2020-10-25 07:29:50'),
-(4, 3, 17, 5, '2020-11-13 12:44:33', '2020-11-13 12:44:33');
 
 -- --------------------------------------------------------
 
@@ -1050,13 +997,6 @@ CREATE TABLE `trn_receives` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `trn_receives`
---
-
-INSERT INTO `trn_receives` (`id`, `reference_no`, `transfer_id`, `shop_code`, `item_code`, `unit_cost`, `quantity`, `user_id`, `status`, `created_at`, `updated_at`) VALUES
-(1, '', '3', '2102', '', 0.00, 0, 1, 0, '2020-11-13 12:46:13', '2020-11-13 12:46:13');
-
 -- --------------------------------------------------------
 
 --
@@ -1073,13 +1013,6 @@ CREATE TABLE `trn_receive_items` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `trn_receive_items`
---
-
-INSERT INTO `trn_receive_items` (`id`, `trn_receive_id`, `item_id`, `quantity`, `cost`, `discount`, `created_at`, `updated_at`) VALUES
-(1, 3, 17, 5, 20.00, NULL, '2020-11-13 12:46:13', '2020-11-13 12:46:13');
 
 -- --------------------------------------------------------
 
@@ -1183,14 +1116,9 @@ CREATE TABLE `vendor_stocks` (
 --
 
 INSERT INTO `vendor_stocks` (`id`, `item_id`, `vendor_id`, `op_type`, `quantity`, `user_id`, `e_p`, `created_at`, `updated_at`) VALUES
-(1, 17, 1, 1, 5, 1, 3, '2020-11-11 08:56:00', '2020-11-11 08:56:00'),
-(2, 3, 1, 1, 3, 1, 3, '2020-11-11 08:56:00', '2020-11-11 08:56:00'),
-(3, 11, 2, 1, 3, 1, 3, '2020-11-11 08:59:15', '2020-11-11 08:59:15'),
-(4, 20, 2, 1, 5, 1, 3, '2020-11-11 08:59:15', '2020-11-11 08:59:15'),
-(5, 17, 1, 1, 5, 1, 3, '2020-11-11 09:01:12', '2020-11-11 09:01:12'),
-(6, 17, 1, 2, 5, 1, 10, '2020-11-13 03:57:14', '2020-11-13 03:57:14'),
-(7, 17, 1, 1, 7, 1, 3, '2020-11-13 12:42:49', '2020-11-13 12:42:49'),
-(8, 17, 1, 2, 12, 1, 10, '2020-11-13 12:47:58', '2020-11-13 12:47:58');
+(1, 17, 1, 1, 10, 1, 3, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
+(2, 3, 1, 1, 5, 1, 3, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
+(3, 17, 2, 1, 5, 1, 3, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
 
 -- --------------------------------------------------------
 
@@ -1212,10 +1140,9 @@ CREATE TABLE `vendor_stock_balances` (
 --
 
 INSERT INTO `vendor_stock_balances` (`item_id`, `vendor_id`, `op_type`, `balance_quantity`, `created_at`, `updated_at`) VALUES
-(3, 1, 1, 3, '2020-11-11 08:56:00', '2020-11-11 08:56:00'),
-(11, 2, 1, 3, '2020-11-11 08:59:15', '2020-11-11 08:59:15'),
-(17, 1, 2, 0, '2020-11-11 08:56:00', '2020-11-13 12:47:58'),
-(20, 2, 1, 5, '2020-11-11 08:59:15', '2020-11-11 08:59:15');
+(3, 1, 1, 5, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
+(17, 1, 1, 10, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
+(17, 2, 1, 5, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
 
 --
 -- Indexes for dumped tables
@@ -1562,19 +1489,19 @@ ALTER TABLE `f_o_c_items`
 -- AUTO_INCREMENT for table `lpo_receives`
 --
 ALTER TABLE `lpo_receives`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `lpo_receive_items`
 --
 ALTER TABLE `lpo_receive_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `offers`
@@ -1622,25 +1549,25 @@ ALTER TABLE `promotional_products`
 -- AUTO_INCREMENT for table `purchases`
 --
 ALTER TABLE `purchases`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `purchase_order_wise_items`
 --
 ALTER TABLE `purchase_order_wise_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `purchase_returns`
 --
 ALTER TABLE `purchase_returns`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `purchase_return_items`
 --
 ALTER TABLE `purchase_return_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `repackings`
@@ -1670,7 +1597,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `stocks`
 --
 ALTER TABLE `stocks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `stock_calculations`
@@ -1694,13 +1621,13 @@ ALTER TABLE `taxes`
 -- AUTO_INCREMENT for table `transfers`
 --
 ALTER TABLE `transfers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `transfer_items`
 --
 ALTER TABLE `transfer_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `transfer_returns`
@@ -1718,13 +1645,13 @@ ALTER TABLE `transfer_return_items`
 -- AUTO_INCREMENT for table `trn_receives`
 --
 ALTER TABLE `trn_receives`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `trn_receive_items`
 --
 ALTER TABLE `trn_receive_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `units`
@@ -1748,7 +1675,7 @@ ALTER TABLE `vendors`
 -- AUTO_INCREMENT for table `vendor_stocks`
 --
 ALTER TABLE `vendor_stocks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
