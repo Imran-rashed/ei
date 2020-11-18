@@ -147,11 +147,13 @@ class LPOReceiveController extends Controller
         $receive->exipre_date = $request->exipre_date;
         $receive->reference_no = $request->reference;
         $receive->vendor_invoice_no = $request->vendor_invoice_no;
+        $receive->is_paid = false;
         $receive->user_id = Auth::id();
 
         if($receive->save()){
             $received_items = $request->received_items;
             $data = array(); //code by mostofa
+            $vendor_data = array(); //code by mostofa
             foreach($received_items as $item){
                 $lpo_item = new \App\LpoReceiveItem();
                 $lpo_item->lpo_receive_id = $receive->id;
@@ -163,15 +165,20 @@ class LPOReceiveController extends Controller
                 //coded by mostofa
                 //item_id, location_id,op_type=1,quantity,end_point=3
                 $push_data = [$lpo_item->item_id,$purchase->location_id,1,$lpo_item->quantity,3];
+                $push_vendor_data=[$lpo_item->item_id,$purchase->vendor_id,1,$lpo_item->quantity,3];
                 array_push($data, $push_data);
+                array_push($vendor_data, $push_vendor_data);
 
             }
 
             
-            \Helpers::callStockInOut($data);
+            $operation = \Helpers::callStockInOut($data, $vendor_data);
 
-
-            return redirect()->back()->with('success', 'Added Successfully!');
+            if($operation['result'] > 0){
+                return redirect()->back()->with('success', 'Added Successfully!');
+            }else{
+                return redirect()->back()->with('failed', $operation['msg']);
+            }
         }
     }
 

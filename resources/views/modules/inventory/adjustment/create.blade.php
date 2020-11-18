@@ -172,7 +172,11 @@ const app = new Vue({
 
         fetchInitItems: function(){
             let ref = this;
+<<<<<<< HEAD
+            axios.get("{{ url('/api/item/list/init') }}") .then(function(resposne){
+=======
             axios.get("{{ url('/api/item/list/init') }}").then(function(resposne){
+>>>>>>> 68468ee42c4386f21838f4a24cc617bd22f6d722
                 ref.item_info = resposne.data.results;
             });
         },

@@ -20,7 +20,7 @@ class CreateLpoReceivesTable extends Migration
             $table->string('exipre_date')->nullable();
             $table->string('reference_no');
             $table->string('vendor_invoice_no')->nullable();
-            $table->boolean('is_paid')->default(false)->comment('false for unpaid, true for paid');
+            $table->boolean('is_paid')->nullable()->comment('false for unpaid, true for paid');
             $table->integer('user_id');
             $table->timestamps();
         });

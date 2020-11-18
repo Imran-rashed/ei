@@ -8,7 +8,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header">`
                                 <h5>Transfer return</h5>
                             </div>
                             <div class="card-body">
@@ -39,15 +39,17 @@
                                                     <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label>From</label>
-                                                            <input type="hidden" name="transfer_from" value="1">
-                                                            <input type="text" class="form-control" readonly="true" value="6016-Aweer Fruits & Vegetable Shop" name="">
+                                                            <input type="hidden" name="transfer_from" v-model="from_location.id">
+
+                                                            <v-select @search="fetch_location_list" :options="location_list" @input="fetch_from_location_info" >
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <input type="hidden" name="transfer_to" v-model="selected_location.id">
+                                                        <input type="hidden" name="transfer_to" v-model="to_location.id">
                                                         <div class="form-group">
                                                             <label>To</label>
-                                                                      <v-select @search="fetch_location_list" :options="location_list" @input="fetch_location_info" >
+                                                                      <v-select @search="fetch_location_list" :options="location_list" @input="fetch_to_location_info" >
+                                                                        </v-select>
 
                                                                   
                                                                         </v-select>
@@ -161,7 +163,10 @@ const app = new Vue({
         item_info: [],
         selected_items: [],
         location_list : [],
-        selected_location: {},
+        //selected_location: {},
+        from_location: {},
+        to_location: {},
+
 
         vendor_list : [],
         selected_vendor: {},
@@ -179,7 +184,7 @@ const app = new Vue({
             let ref = this;
 
             if(search != ''){
-            axios.post('/api/item/list',{'search':search}).then(function(response){
+            axios.post("{{url('/api/item/list') }}",{'search':search}).then(function(response){
                 ref.item_info = response.data.results;
             });
             }
@@ -189,7 +194,7 @@ const app = new Vue({
             let ref = this;
             let product_id = value.code;
             ref.selected_item_buy = {};
-            axios.post('/api/item/info', {'id':product_id}).then(function(response){
+            axios.post("{{url('/api/item/info') }}", {'id':product_id}).then(function(response){
                 // ref.selected_item_buy.id = response.data.id;
                 // ref.selected_item_buy.cost = response.data.prices.final_cost;
                 // ref.selected_item_buy.markup = response.data.prices.markup + ' %';
@@ -207,7 +212,7 @@ const app = new Vue({
             let ref = this;
 
             if(search != ''){
-            axios.post('/api/location/list',{'search':search}).then(function(response){
+            axios.post("{{url('/api/location/list') }}",{'search':search}).then(function(response){
                 ref.location_list = response.data.results;
             });
             }
@@ -215,7 +220,7 @@ const app = new Vue({
         fetch_location_info: function(value){
             let ref = this;
             let store_id = value;
-            axios.post('/api/location/info', {'id':store_id}).then(function(response){
+            axios.post("{{url('/api/location/info') }}", {'id':store_id}).then(function(response){
 
                 ref.selected_location.id = response.data[0].id;
                 ref.selected_location.name = response.data[0].name;
@@ -227,7 +232,7 @@ const app = new Vue({
             let ref = this;
 
             if(search != ''){
-            axios.post('/api/vendor/list',{'search':search}).then(function(response){
+            axios.post("{{url('/api/vendor/list') }}",{'search':search}).then(function(response){
                 ref.vendor_list = response.data.results;
             });
             }
@@ -236,7 +241,7 @@ const app = new Vue({
             let ref = this;
 
             let store_id = value;
-            axios.post('/api/vendor/info', {'id':store_id}).then(function(response){
+            axios.post("{{url('/api/vendor/info') }}", {'id':store_id}).then(function(response){
 
                 ref.selected_vendor.id = response.data[0].id;
                 ref.selected_vendor.name = response.data[0].name;
@@ -288,7 +293,7 @@ const app = new Vue({
         },
         autoGenerateRef: function(){
             let ref = this;
-            axios.post('/api/reference/generate', {'table':'transfer_returns', 'refcode':'RTN'}).then(function(response){
+            axios.post("{{url('/api/reference/generate') }}", {'table':'transfer_returns', 'refcode':'RTN'}).then(function(response){
                 ref.reference = response.data.reference;
             });
 

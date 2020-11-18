@@ -44,13 +44,17 @@ class StockInOutOperation extends Command
             array(1,1,2,10,1),
             array(1,2,1,9,1)
         );*/
-        $data = $this->argument('stock_info');
+        $alldata = $this->argument('stock_info');
+
+        $data = $alldata['item_location'];
+
+        $vendor_data = $alldata['item_vendor'];
 
         //var_dump($data);
         //return 0;
 
         $result=0;
-        $msg = "";
+        $msg = "!Transaction Failed!";
 
         DB::beginTransaction();
         try{
@@ -59,18 +63,32 @@ class StockInOutOperation extends Command
             foreach ($data as $value) {                
                 
                 $perfect = Helpers::StockInOut($value);
-                echo "perfect:".$perfect;
+                //echo "perfect:".$perfect;
                 if($perfect < 1) {
                     $result = 0;
                     $msg = "!!Item No Available!!";
                     break;
                 }
             }
+
+            if( isset($vendor_data) && !empty($vendor_data)){
+
+                foreach ($vendor_data as $value) {                
+                
+                    $perfect = Helpers::StockInOutVendor($value);
+                    //echo "perfect:".$perfect;
+                    if($perfect < 1) {
+                        $result = 0;
+                        $msg = "!!Item No Available!!";
+                        break;
+                    }
+                }
+            }
         
             if($perfect > 0) {
                 DB::commit();
                 $result = 1;
-                $msg = "Transaction Complete!";
+                $msg = "*Transaction Complete*";
             }else{
                 DB::rollBack();    
             }
@@ -78,12 +96,12 @@ class StockInOutOperation extends Command
         }catch(Exception $e){
             DB::rollBack();
             $result = 0;
-            $msg = "Transaction Failed!";        
+            $msg = "!Transaction Failed!";        
         }
 
         //echo $result."=".$msg;
         //Helpers::StockInOut(1,1,2,4,1);
         //Helpers::StockInOut(1,2,2,2,1);
-        return $result;
+        echo json_encode(['result'=>$result, 'msg'=>$msg], true);
     }
 }
