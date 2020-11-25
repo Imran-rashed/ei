@@ -13,6 +13,7 @@ use DataTables;
 use Illuminate\Support\Facades\Validator;
 use Helpers;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class LPOReceiveController extends Controller
 {
@@ -110,15 +111,15 @@ class LPOReceiveController extends Controller
 
         $purchase = Purchase::where('reference', $reference_no)->with(['vendor', 'purchase_items'])->first();
 
-        $item_ids = array();
+        //$item_ids = array();
 
-        $purchase_items = Purchase::getPurchaseItemIds($purchase->id);
+        //$purchase_items = Purchase::getPurchaseItemIds($purchase->id);
 
-        $lpo_receive_items = LpoReceive::getReceiveIds(1);
-        if(!empty($purchase_items) && !empty($lpo_receive_items)){
-                $item_ids = array_diff($purchase_items, $lpo_receive_items);
-        }
-        dd($item_ids);
+        //$lpo_receive_items = LpoReceive::getReceiveIds(1);
+        //if(!empty($purchase_items) && !empty($lpo_receive_items)){
+        //        $item_ids = array_diff($purchase_items, $lpo_receive_items);
+        //}
+        //dd($item_ids);
 
         if(!$purchase){
             return redirect()->back();
@@ -159,44 +160,114 @@ class LPOReceiveController extends Controller
             'exipre_date'=> 'required',
             'received_items' => 'required',
         ]);
-
+        /**
+        item_id 
+        which are in purchase_wise_items
+        which are not in lpo_receive items 
+        **/
         $purchase_item_ids = array();
 
         $purchase = Purchase::where('reference', $request->reference_no)->first();
 
         $receive = LpoReceive::where('purchase_id',$purchase->id)->first();
+
+        $new_lpo_receive = false;
         if(!isset($receive)){
             $receive = new LpoReceive();
+            $new_lpo_receive = true;
         }else{
 
             if($receive->is_completed  > 0){
                 return redirect()->back()->with('failed', "This LPO: ($reference_no) is taken already!");
             }
-
+            // get purchase wise item ids
             $purchase_items = Purchase::getPurchaseItemIds($purchase->id);
+            //get lpo receive wise item id
             $lpo_receive_items = LpoReceive::getReceiveIds($receive->id);
 
             if(!empty($purchase_items) && !empty($lpo_receive_items)){
                 $purchase_item_ids = array_diff($purchase_items, $lpo_receive_items);
             }
 
-        }
+            $new_lpo_receive = false;
 
+        }
+        //if empty the all lpo_receive are completed
         $is_completed = empty($purchase_item_ids)?1:0;
 
+        $receive_insert_data = array();
 
-        $receive_insert_data = [
-            'purchase_id'=>$purchase->id,
-            'shelf_life'=>$request->shelf_life,
-            'exipre_date'=>$request->exipre_date,
-            'reference_no'=>$request->reference,
-            'vendor_invoice_no'=>$request->vendor_invoice_no,
-            'is_paid'=>0,
-            'is_completed'=>$is_completed,
-            'user_id'=>Auth::id()
-        ];
+        if($new_lpo_receive){
+            $receive_insert_data = [
+                'purchase_id'=>$purchase->id,
+                'shelf_life'=>$request->shelf_life,
+                'exipre_date'=>$request->exipre_date,
+                'reference_no'=>$request->reference,
+                'vendor_invoice_no'=>$request->vendor_invoice_no,
+                'is_paid'=>0,
+                'is_completed'=>$is_completed,
+                'user_id'=>Auth::id(),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ];
+        }else{
 
-        
+            $receive_insert_data =[
+                'purchase_id'=>$purchase->id,
+                'is_completed'=>$is_completed,
+                'updated_at' => Carbon::now()
+            ];
+
+        }
+
+        $received_items = $request->received_items;
+
+        $received_items_ids = array_column($received_items, 'id');
+
+
+        $n_received_items_ids = array_diff($received_items_ids, $purchase_item_ids);
+
+        //dd($n_received_items_ids);
+
+        $lpo_r_items_i_q = array();
+        //stock data
+        $data = array(); //code by mostofa
+        //vendor stock data
+        $vendor_data = array(); //code by mostofa
+
+        foreach($received_items as $item){
+            if(!in_array($item['id'], $n_received_items_ids)) continue;
+
+            $lpo_r_items_i_q[]=[
+                'lpo_receive_id'=>null,
+                'item_id'=>$item['id'],
+                'cost'=>$item['cost'],
+                'quantity'=>$item['quantity'],
+                'discount'=>$item['discount'],
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now()
+            ];
+
+            
+            $push_data = [$item['id'],$purchase->location_id,1,$item['quantity'],3];
+            $push_vendor_data=[$item['id'],$purchase->vendor_id,1,$item['quantity'],3];
+            array_push($data, $push_data);
+            array_push($vendor_data, $push_vendor_data);
+
+        }
+
+        //dd($lpo_r_items_i_q);
+
+        /*
+        foreach($received_items as $item){
+
+            $lpo_r_items_i_q[]=[
+                'item_id'=>$purchase->id,
+                ''
+            ];
+        }*/
+
+        /*
         $receive->purchase_id = $purchase->id;
         $receive->shelf_life = $request->shelf_life;
         $receive->exipre_date = $request->exipre_date;
@@ -225,16 +296,21 @@ class LPOReceiveController extends Controller
                 array_push($vendor_data, $push_vendor_data);
 
             }
+            */
 
-            
-            $operation = \Helpers::callStockInOut($data, $vendor_data);
+            $lpo_data = [
+                'lpo_receives'=>$receive_insert_data, 
+                'lpo_receive_items'=>$lpo_r_items_i_q,
+                'new_lpo_receive'=>$new_lpo_receive
+            ];
+            $operation = \Helpers::callStockInOut($data, $vendor_data, $lpo_data);
 
             if($operation['result'] > 0){
                 return redirect()->back()->with('success', 'Added Successfully!');
             }else{
                 return redirect()->back()->with('failed', $operation['msg']);
             }
-        }
+        
     }
 
     /**

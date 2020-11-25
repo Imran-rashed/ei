@@ -50,6 +50,8 @@ class StockInOutOperation extends Command
 
         $vendor_data = $alldata['item_vendor'];
 
+        $lpo_data = $alldata['lpo_data'];
+
         //var_dump($data);
         //return 0;
 
@@ -60,6 +62,7 @@ class StockInOutOperation extends Command
         try{
 
             $perfect = 0;
+            //insert stock data
             foreach ($data as $value) {                
                 
                 $perfect = Helpers::StockInOut($value);
@@ -70,6 +73,8 @@ class StockInOutOperation extends Command
                     break;
                 }
             }
+
+            //insert vendor data
 
             if( isset($vendor_data) && !empty($vendor_data)){
 
@@ -84,6 +89,17 @@ class StockInOutOperation extends Command
                     }
                 }
             }
+
+            //insert lpo receive
+            if(isset($lpo_data) && !empty($lpo_data)){
+                $perfect = Helpers::lpo_data_insert(
+                    $lpo_data['lpo_receives'],
+                    $lpo_data['lpo_receive_items'],
+                    $lpo_data['new_lpo_receive'],
+                );        
+            }
+            //end lpo receive
+
         
             if($perfect > 0) {
                 DB::commit();

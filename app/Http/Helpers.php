@@ -316,7 +316,7 @@ class Helpers
     }
 
 
-    //stock and stock balance in out
+    //vendor stock balance in out
     public static function StockInOutVendor($data){
 
             //first check balaance from stock_balance table
@@ -376,6 +376,22 @@ class Helpers
           }
     }
 
+    public static function lpo_data_insert($lpo_receives, $lpo_receive_items, $new_lpo_receive){
+
+      $lpo_receive_id = $new_lpo_receive? DB::table('lpo_receives')->insertGetId($lpo_receives): DB::table('lpo_receives')->where('purchase_id', $lpo_receives['purchase_id'])->update($lpo_receives);
+
+      array_walk_recursive($lpo_receive_items, function(&$item, $key) use(&$lpo_receive_id){
+         if($key == 'lpo_receive_id')
+              $item = $lpo_receive_id;
+       
+      });
+
+      $lpo_receive_item_ids = DB::table('lpo_receive_items')->insert($lpo_receive_items);
+
+      return $lpo_receive_id && $lpo_receive_item_ids;
+
+    }
+
     public static function stockTotalItems($item_id, $location_id=null){
       
       $query = isset($location_id)? 
@@ -386,9 +402,9 @@ class Helpers
 
     }
 
-    public static function callStockInOut($data, $vendor_data=null){
+    public static function callStockInOut($data, $vendor_data=null, $lpo_data=null){
       \ob_start();
-      $alldata = ['item_location'=>$data, 'item_vendor'=>$vendor_data];
+      $alldata = ['item_location'=>$data, 'item_vendor'=>$vendor_data,'lpo_data'=>$lpo_data];
       \Artisan::call('operation:stockinout',['stock_info'=>$alldata]);
       $output = \ob_get_clean();
       //file_put_contents('data.txt', $output);
