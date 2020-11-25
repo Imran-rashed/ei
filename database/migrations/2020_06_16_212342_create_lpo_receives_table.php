@@ -21,6 +21,7 @@ class CreateLpoReceivesTable extends Migration
             $table->string('reference_no');
             $table->string('vendor_invoice_no')->nullable();
             $table->boolean('is_paid')->nullable()->comment('false for unpaid, true for paid');
+            $table->boolean('is_completed')->default(0)->comment('false for not completed, true for completed');
             $table->integer('user_id');
             $table->timestamps();
         });

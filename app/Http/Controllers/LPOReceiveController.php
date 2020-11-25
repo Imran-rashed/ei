@@ -8,6 +8,7 @@ use App\PurchaseOrderWiseItem;
 use App\Item;
 use Auth;
 use App\LpoReceive;
+use App\LpoReceiveItem;
 use DataTables;
 use Illuminate\Support\Facades\Validator;
 use Helpers;
@@ -108,8 +109,25 @@ class LPOReceiveController extends Controller
         $vendor_invoice_no = $request->vendor_invoice_no;
 
         $purchase = Purchase::where('reference', $reference_no)->with(['vendor', 'purchase_items'])->first();
+
+        $item_ids = array();
+
+        $purchase_items = Purchase::getPurchaseItemIds($purchase->id);
+
+        $lpo_receive_items = LpoReceive::getReceiveIds(1);
+        if(!empty($purchase_items) && !empty($lpo_receive_items)){
+                $item_ids = array_diff($purchase_items, $lpo_receive_items);
+        }
+        dd($item_ids);
+
         if(!$purchase){
             return redirect()->back();
+        }else{
+            $receive = LpoReceive::where('purchase_id',$purchase->id)->first();
+
+            if(isset($receive) && $receive->is_completed  > 0){
+                return redirect()->back()->with('failed', "This LPO: ($reference_no) is taken already!");
+            }
         }
 
         $dates = [
@@ -137,11 +155,48 @@ class LPOReceiveController extends Controller
     {
         $request->validate([
             'reference_no' => 'required',
-            'received_items' => 'required'
+            'shelf_life' => 'required',
+            'exipre_date'=> 'required',
+            'received_items' => 'required',
         ]);
 
-        $purchase = \App\Purchase::where('reference', $request->reference_no)->first();
-        $receive = new \App\LpoReceive();
+        $purchase_item_ids = array();
+
+        $purchase = Purchase::where('reference', $request->reference_no)->first();
+
+        $receive = LpoReceive::where('purchase_id',$purchase->id)->first();
+        if(!isset($receive)){
+            $receive = new LpoReceive();
+        }else{
+
+            if($receive->is_completed  > 0){
+                return redirect()->back()->with('failed', "This LPO: ($reference_no) is taken already!");
+            }
+
+            $purchase_items = Purchase::getPurchaseItemIds($purchase->id);
+            $lpo_receive_items = LpoReceive::getReceiveIds($receive->id);
+
+            if(!empty($purchase_items) && !empty($lpo_receive_items)){
+                $purchase_item_ids = array_diff($purchase_items, $lpo_receive_items);
+            }
+
+        }
+
+        $is_completed = empty($purchase_item_ids)?1:0;
+
+
+        $receive_insert_data = [
+            'purchase_id'=>$purchase->id,
+            'shelf_life'=>$request->shelf_life,
+            'exipre_date'=>$request->exipre_date,
+            'reference_no'=>$request->reference,
+            'vendor_invoice_no'=>$request->vendor_invoice_no,
+            'is_paid'=>0,
+            'is_completed'=>$is_completed,
+            'user_id'=>Auth::id()
+        ];
+
+        
         $receive->purchase_id = $purchase->id;
         $receive->shelf_life = $request->shelf_life;
         $receive->exipre_date = $request->exipre_date;
@@ -155,7 +210,7 @@ class LPOReceiveController extends Controller
             $data = array(); //code by mostofa
             $vendor_data = array(); //code by mostofa
             foreach($received_items as $item){
-                $lpo_item = new \App\LpoReceiveItem();
+                $lpo_item = new LpoReceiveItem();
                 $lpo_item->lpo_receive_id = $receive->id;
                 $lpo_item->item_id = $item['id'];
                 $lpo_item->cost = $item['cost'];

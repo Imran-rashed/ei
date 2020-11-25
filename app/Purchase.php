@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Purchase extends Model
 {
@@ -17,5 +18,10 @@ class Purchase extends Model
     }
     public function location(){
     	return $this->belongsTo('\App\Location', 'location_id');
+    }
+
+    public static function getPurchaseItemIds($purchase_id){
+         return DB::table('purchase_order_wise_items')
+        ->where('purchase_id', $purchase_id)->pluck('item_id')->toArray();
     }
 }

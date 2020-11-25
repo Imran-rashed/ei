@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Nov 16, 2020 at 04:30 PM
--- Server version: 10.4.14-MariaDB
--- PHP Version: 7.4.9
+-- Generation Time: Nov 25, 2020 at 12:08 PM
+-- Server version: 10.4.13-MariaDB
+-- PHP Version: 7.4.7
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -226,6 +226,7 @@ CREATE TABLE `lpo_receives` (
   `reference_no` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `vendor_invoice_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_paid` tinyint(1) DEFAULT NULL COMMENT 'false for unpaid, true for paid',
+  `is_completed` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'false for not completed, true for completed',
   `user_id` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -235,9 +236,8 @@ CREATE TABLE `lpo_receives` (
 -- Dumping data for table `lpo_receives`
 --
 
-INSERT INTO `lpo_receives` (`id`, `purchase_id`, `shelf_life`, `exipre_date`, `reference_no`, `vendor_invoice_no`, `is_paid`, `user_id`, `created_at`, `updated_at`) VALUES
-(1, 1, '101', '2020/11/16 20:54', 'GRN0010001', '102', 1, 1, '2020-11-15 08:54:47', '2020-11-16 09:23:48'),
-(2, 2, '102', '2020/11/16 21:59', 'GRN0010002', '103', 1, 1, '2020-11-15 10:02:05', '2020-11-16 09:23:49');
+INSERT INTO `lpo_receives` (`id`, `purchase_id`, `shelf_life`, `exipre_date`, `reference_no`, `vendor_invoice_no`, `is_paid`, `is_completed`, `user_id`, `created_at`, `updated_at`) VALUES
+(1, 1, '123', '2020/11/25 15:44', 'GRN0010001', '102', 0, 0, 1, '2020-11-24 03:44:17', '2020-11-24 03:44:17');
 
 -- --------------------------------------------------------
 
@@ -261,9 +261,7 @@ CREATE TABLE `lpo_receive_items` (
 --
 
 INSERT INTO `lpo_receive_items` (`id`, `lpo_receive_id`, `item_id`, `quantity`, `cost`, `discount`, `created_at`, `updated_at`) VALUES
-(1, 1, 17, 10, 20.00, 0.00, '2020-11-15 08:54:47', '2020-11-15 08:54:47'),
-(2, 1, 3, 5, 10.00, 0.00, '2020-11-15 08:54:47', '2020-11-15 08:54:47'),
-(3, 2, 17, 5, 20.00, 5.00, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
+(1, 1, 17, 10, 20.00, 0.00, '2020-11-24 03:44:17', '2020-11-24 03:44:17');
 
 -- --------------------------------------------------------
 
@@ -321,7 +319,7 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (41, '2020_10_24_063506_create_stock_balances_table', 5),
 (44, '2020_11_08_104626_create_vendor_stock_table', 6),
 (45, '2020_11_08_104829_create_vendor_stock_balances_table', 7),
-(47, '2020_06_16_212342_create_lpo_receives_table', 8);
+(48, '2020_06_16_212342_create_lpo_receives_table', 8);
 
 -- --------------------------------------------------------
 
@@ -632,8 +630,7 @@ CREATE TABLE `purchases` (
 --
 
 INSERT INTO `purchases` (`id`, `date`, `requisition_date`, `vendor_confirm_date`, `shipping_date`, `reference`, `location_id`, `status`, `document_file`, `is_foc`, `vendor_id`, `discount`, `tax`, `note`, `user_id`, `created_at`, `updated_at`) VALUES
-(1, '2020/11/15 02:11:09', '2020/11/15 02:11:09', '2020/11/15 02:11:09', '2020/11/15 02:11:09', 'LPO0010001', 1, 0, '', 0, 1, 0.00, 0.00, NULL, 1, '2020-11-15 08:53:54', '2020-11-15 08:53:54'),
-(2, '2020/11/15 03:11:39', '2020/11/15 03:11:39', '2020/11/15 03:11:39', '2020/11/15 03:11:39', 'LPO0010002', 2, 0, '', 0, 2, 0.00, 0.00, NULL, 1, '2020-11-15 09:58:54', '2020-11-15 09:58:54');
+(1, '2020/11/24 08:11:50', '2020/11/24 08:11:50', '2020/11/24 08:11:50', '2020/11/24 08:11:50', 'LPO0010001', 1, 0, '', 0, 1, 0.00, 0.00, NULL, 1, '2020-11-24 02:30:03', '2020-11-24 02:30:03');
 
 -- --------------------------------------------------------
 
@@ -658,9 +655,8 @@ CREATE TABLE `purchase_order_wise_items` (
 --
 
 INSERT INTO `purchase_order_wise_items` (`id`, `item_id`, `location_id`, `purchase_id`, `quantity`, `cost`, `discount`, `created_at`, `updated_at`) VALUES
-(1, 17, 1, 1, 10, 20, 0.00, '2020-11-15 08:53:54', '2020-11-15 08:53:54'),
-(2, 3, 1, 1, 5, 10, 0.00, '2020-11-15 08:53:54', '2020-11-15 08:53:54'),
-(3, 17, 2, 2, 5, 20, 5.00, '2020-11-15 09:58:54', '2020-11-15 09:58:54');
+(1, 17, 1, 1, 10, 20, 0.00, '2020-11-24 02:30:03', '2020-11-24 02:30:03'),
+(2, 3, 1, 1, 5, 10, 0.00, '2020-11-24 02:30:03', '2020-11-24 02:30:03');
 
 -- --------------------------------------------------------
 
@@ -813,9 +809,7 @@ CREATE TABLE `stocks` (
 --
 
 INSERT INTO `stocks` (`id`, `item_id`, `location_id`, `op_type`, `quantity`, `user_id`, `e_p`, `created_at`, `updated_at`) VALUES
-(1, 17, 1, 1, 10, 1, 3, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
-(2, 3, 1, 1, 5, 1, 3, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
-(3, 17, 2, 1, 5, 1, 3, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
+(1, 17, 1, 1, 10, 1, 3, '2020-11-24 03:44:17', '2020-11-24 03:44:17');
 
 -- --------------------------------------------------------
 
@@ -837,9 +831,7 @@ CREATE TABLE `stock_balances` (
 --
 
 INSERT INTO `stock_balances` (`item_id`, `location_id`, `op_type`, `balance_quantity`, `created_at`, `updated_at`) VALUES
-(3, 1, 1, 5, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
-(17, 1, 1, 10, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
-(17, 2, 1, 5, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
+(17, 1, 1, 10, '2020-11-24 03:44:17', '2020-11-24 03:44:17');
 
 -- --------------------------------------------------------
 
@@ -1116,9 +1108,7 @@ CREATE TABLE `vendor_stocks` (
 --
 
 INSERT INTO `vendor_stocks` (`id`, `item_id`, `vendor_id`, `op_type`, `quantity`, `user_id`, `e_p`, `created_at`, `updated_at`) VALUES
-(1, 17, 1, 1, 10, 1, 3, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
-(2, 3, 1, 1, 5, 1, 3, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
-(3, 17, 2, 1, 5, 1, 3, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
+(1, 17, 1, 1, 10, 1, 3, '2020-11-24 03:44:17', '2020-11-24 03:44:17');
 
 -- --------------------------------------------------------
 
@@ -1140,9 +1130,7 @@ CREATE TABLE `vendor_stock_balances` (
 --
 
 INSERT INTO `vendor_stock_balances` (`item_id`, `vendor_id`, `op_type`, `balance_quantity`, `created_at`, `updated_at`) VALUES
-(3, 1, 1, 5, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
-(17, 1, 1, 10, '2020-11-15 08:54:48', '2020-11-15 08:54:48'),
-(17, 2, 1, 5, '2020-11-15 10:02:05', '2020-11-15 10:02:05');
+(17, 1, 1, 10, '2020-11-24 03:44:17', '2020-11-24 03:44:17');
 
 --
 -- Indexes for dumped tables
@@ -1489,19 +1477,19 @@ ALTER TABLE `f_o_c_items`
 -- AUTO_INCREMENT for table `lpo_receives`
 --
 ALTER TABLE `lpo_receives`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `lpo_receive_items`
 --
 ALTER TABLE `lpo_receive_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `offers`
@@ -1549,13 +1537,13 @@ ALTER TABLE `promotional_products`
 -- AUTO_INCREMENT for table `purchases`
 --
 ALTER TABLE `purchases`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `purchase_order_wise_items`
 --
 ALTER TABLE `purchase_order_wise_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `purchase_returns`
@@ -1597,7 +1585,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `stocks`
 --
 ALTER TABLE `stocks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `stock_calculations`
@@ -1675,7 +1663,7 @@ ALTER TABLE `vendors`
 -- AUTO_INCREMENT for table `vendor_stocks`
 --
 ALTER TABLE `vendor_stocks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
