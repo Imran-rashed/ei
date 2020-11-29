@@ -317,10 +317,34 @@ const app = new Vue({
                 data.quantity = 1;
                 data.discount = 0;
                 // console.log(ref.selected_item_buy);
-                ref.selected_items.push(data);
+                /*let counted_elements = ref.selected_items;
+                if(!counted_elements.includes(data.code )){
+                    counted_elements.push(data);
+                    ref.total_item = ref.total_item + 1;                    
+                }*/
+                
+                found_previous = ref.find_selected_item(ref.selected_items,'code',data.code);
+                
+                //ref.selected_items.includes();
+                var object = {};
+                object[data.code] = data;                
+                ref.selected_items.push(object);
+                /*if(found_previous.length > 0){
+                     data.quantity += 1;   
+                }else{
+                    ref.selected_items.push(data);
+                }*/
+                console.log(ref.selected_items);
+                
+                
                 ref.countTotals();
             });
 
+        },
+        find_selected_item:function (array, key, value) {
+            return array.filter(function (object) {
+                return object[key] === value;
+            });
         },
 // FOC
 
